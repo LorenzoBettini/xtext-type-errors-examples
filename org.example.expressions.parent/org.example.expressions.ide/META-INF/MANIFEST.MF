@@ -12,4 +12,5 @@ Require-Bundle: org.example.expressions,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.example.expressions.ide.contentassist.antlr,
  org.example.expressions.ide.contentassist.antlr.internal
+Automatic-Module-Name: org.example.expressions.ide
 

@@ -27,3 +27,4 @@ Export-Package: org.example.expressions.generator,
  org.example.expressions.parser.antlr,
  org.example.expressions.validation
 Import-Package: org.apache.log4j
+Automatic-Module-Name: org.example.expressions
