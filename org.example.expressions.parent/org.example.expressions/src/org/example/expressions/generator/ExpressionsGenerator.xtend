@@ -3,10 +3,15 @@
  */
 package org.example.expressions.generator
 
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import org.example.expressions.expressions.ExpressionsModel
+import org.example.expressions.interpreter.ExpressionsInterpreter
+
+import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
 
 /**
  * Generates code from your model files on save.
@@ -15,11 +20,19 @@ import org.eclipse.xtext.generator.IGeneratorContext
  */
 class ExpressionsGenerator extends AbstractGenerator {
 
+	@Inject extension ExpressionsInterpreter
+
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+		resource.allContents.toIterable.filter(ExpressionsModel).forEach [
+			fsa.generateFile
+				('''«resource.URI.lastSegment».evaluated''',
+					interpretExpressions)
+		]
+	}
+
+	def interpretExpressions(ExpressionsModel model) {
+		model.elements.map [
+			'''«getNode.getTokenText» ~> «interpret»'''
+		].join("\n")
 	}
 }
