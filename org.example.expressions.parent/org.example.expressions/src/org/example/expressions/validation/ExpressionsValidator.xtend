@@ -57,14 +57,14 @@ class ExpressionsValidator extends AbstractExpressionsValidator {
 	}
 
 	@Check def checkType(Equality equality) {
-		val leftType = getTypeAndCheckNotNull(equality.left, ExpressionsPackage.Literals.EQUALITY__LEFT)
-		val rightType = getTypeAndCheckNotNull(equality.right, ExpressionsPackage.Literals.EQUALITY__RIGHT)
+		val leftType = equality.left.inferredType
+		val rightType = equality.right.inferredType
 		checkExpectedSame(leftType, rightType)
 	}
 
 	@Check def checkType(Comparison comparison) {
-		val leftType = getTypeAndCheckNotNull(comparison.left, ExpressionsPackage.Literals.COMPARISON__LEFT)
-		val rightType = getTypeAndCheckNotNull(comparison.right, ExpressionsPackage.Literals.COMPARISON__RIGHT)
+		val leftType = comparison.left.inferredType
+		val rightType = comparison.right.inferredType
 		checkExpectedSame(leftType, rightType)
 		checkNotBoolean(leftType, ExpressionsPackage.Literals.COMPARISON__LEFT)
 		checkNotBoolean(rightType, ExpressionsPackage.Literals.COMPARISON__RIGHT)
@@ -81,12 +81,5 @@ class ExpressionsValidator extends AbstractExpressionsValidator {
 		if (type.isBoolType) {
 			error("cannot be boolean", reference, TYPE_MISMATCH)
 		}
-	}
-
-	def private ExpressionsType getTypeAndCheckNotNull(Expression exp, EReference reference) {
-		val type = exp?.inferredType
-		if (type === null)
-			error("null type", reference, TYPE_MISMATCH)
-		return type;
 	}
 }
