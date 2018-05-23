@@ -79,6 +79,24 @@ class ExpressionsTypeSystemTest {
 		(ExpressionsTypeSystem.INT_TYPE).isBoolType.assertFalse
 	}
 
+	@Test def void testEverythingIsAssignableToString() {
+		INT_TYPE.isAssignableTo(STRING_TYPE).assertTrue
+		BOOL_TYPE.isAssignableTo(STRING_TYPE).assertTrue
+		STRING_TYPE.isAssignableTo(STRING_TYPE).assertTrue
+	}
+
+	@Test def void testOnlyIntIsAssignableToInt() {
+		INT_TYPE.isAssignableTo(INT_TYPE).assertTrue
+		BOOL_TYPE.isAssignableTo(INT_TYPE).assertFalse
+		STRING_TYPE.isAssignableTo(INT_TYPE).assertFalse
+	}
+
+	@Test def void testOnlyBooleanIsAssignableToBoolean() {
+		INT_TYPE.isAssignableTo(BOOL_TYPE).assertFalse
+		BOOL_TYPE.isAssignableTo(BOOL_TYPE).assertTrue
+		STRING_TYPE.isAssignableTo(BOOL_TYPE).assertFalse
+	}
+
 	def assertEvalType(CharSequence input, ExpressionsType expectedType) {
 		("eval " + input).assertType(expectedType)
 	}

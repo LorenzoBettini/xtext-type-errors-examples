@@ -75,4 +75,11 @@ class ExpressionsTypeSystem {
 		}
 	}
 
+	/**
+	 * Is type1 assignable to type2, that is, is type1 subtype of type2
+	 */
+	def boolean isAssignableTo(ExpressionsType type1, ExpressionsType type2) {
+		return type2.isStringType || type1 === type2
+	}
+
 }
