@@ -38,8 +38,9 @@ class ExpressionsTypeComputer {
 		type === BOOL_TYPE
 	}
 
-	def dispatch ExpressionsType typeFor(Expression e) {
+	def ExpressionsType typeFor(Expression e) {
 		switch (e) {
+			// trivial cases
 			StringConstant: STRING_TYPE
 			IntConstant: INT_TYPE
 			BoolConstant: BOOL_TYPE
@@ -50,28 +51,29 @@ class ExpressionsTypeComputer {
 			Equality: BOOL_TYPE
 			And: BOOL_TYPE
 			Or: BOOL_TYPE
+			// recursive case
+			Plus: {
+				val leftType = e.left.typeFor
+				val rightType = e.right?.typeFor
+				if (leftType.isStringType || rightType.isStringType)
+					STRING_TYPE
+				else
+					INT_TYPE
+			}
+			// variable reference case
+			VariableRef: {
+				if (!e.isVariableDefinedBefore)
+					return null
+				else {
+					val variable = e.variable
+					// use a pair as the key, not to conflict with the
+					// use of cache we make in ExpressionsModelUtil
+					return cache.get("type" -> variable, variable.eResource) [
+						variable.expression.typeFor
+					]
+				}
+			}
 		}
 	}
 
-	def dispatch ExpressionsType typeFor(Plus e) {
-		val leftType = e.left.typeFor
-		val rightType = e.right?.typeFor
-		if (leftType.isStringType || rightType.isStringType)
-			STRING_TYPE
-		else
-			INT_TYPE
-	}
-
-	def dispatch ExpressionsType typeFor(VariableRef varRef) {
-		if (!varRef.isVariableDefinedBefore)
-			return null
-		else {
-			val variable = varRef.variable
-			// use a pair as the key, not to conflict with the
-			// use of cache we make in ExpressionsModelUtil
-			return cache.get("type" -> variable, variable.eResource) [
-				variable.expression.typeFor
-			]
-		}
-	}
 }
