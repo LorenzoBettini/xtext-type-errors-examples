@@ -62,9 +62,8 @@ class ExpressionsTypeSystem {
 			}
 			// variable reference case
 			VariableRef: {
-				if (!e.isVariableDefinedBefore)
-					return null
-				else {
+				// avoid possible infinite recursion
+				if (e.isVariableDefinedBefore) {
 					val variable = e.variable
 					// use a pair as the key, not to conflict with the
 					// use of cache we make in ExpressionsModelUtil
