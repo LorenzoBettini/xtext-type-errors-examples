@@ -17,7 +17,7 @@ import org.example.expressions.expressions.Plus
 import org.example.expressions.expressions.StringConstant
 import org.example.expressions.expressions.VariableRef
 
-class ExpressionsTypeComputer {
+class ExpressionsTypeSystem {
 	public static val STRING_TYPE = new StringType
 	public static val INT_TYPE = new IntType
 	public static val BOOL_TYPE = new BoolType

@@ -12,9 +12,9 @@ import org.example.expressions.validation.ExpressionsValidator
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import static org.example.expressions.typing.ExpressionsTypeComputer.*
 
 import static extension org.junit.Assert.*
+import static org.example.expressions.typing.ExpressionsTypeSystem.*
 
 @RunWith(XtextRunner)
 @InjectWith(ExpressionsInjectorProvider)

@@ -19,7 +19,7 @@ import org.example.expressions.expressions.Or
 import org.example.expressions.expressions.Plus
 import org.example.expressions.expressions.VariableRef
 import org.example.expressions.typing.ExpressionsType
-import org.example.expressions.typing.ExpressionsTypeComputer
+import org.example.expressions.typing.ExpressionsTypeSystem
 
 /**
  * This class contains custom validation rules. 
@@ -33,7 +33,7 @@ class ExpressionsValidator extends AbstractExpressionsValidator {
 	public static val TYPE_MISMATCH = ISSUE_CODE_PREFIX + "TypeMismatch"
 
 	@Inject extension ExpressionsModelUtil
-	@Inject extension ExpressionsTypeComputer
+	@Inject extension ExpressionsTypeSystem
 
 	@Check
 	def void checkForwardReference(VariableRef varRef) {
@@ -111,11 +111,11 @@ class ExpressionsValidator extends AbstractExpressionsValidator {
 	}
 
 	def private checkExpectedBoolean(Expression exp, EReference reference) {
-		checkExpectedType(exp, ExpressionsTypeComputer.BOOL_TYPE, reference)
+		checkExpectedType(exp, ExpressionsTypeSystem.BOOL_TYPE, reference)
 	}
 
 	def private checkExpectedInt(Expression exp, EReference reference) {
-		checkExpectedType(exp, ExpressionsTypeComputer.INT_TYPE, reference)
+		checkExpectedType(exp, ExpressionsTypeSystem.INT_TYPE, reference)
 	}
 
 	def private checkExpectedType(Expression exp, ExpressionsType expectedType, EReference reference) {

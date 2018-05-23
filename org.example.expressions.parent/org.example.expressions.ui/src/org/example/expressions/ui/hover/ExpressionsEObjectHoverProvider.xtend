@@ -6,12 +6,12 @@ import org.eclipse.emf.ecore.util.Diagnostician
 import org.eclipse.xtext.ui.editor.hover.html.DefaultEObjectHoverProvider
 import org.example.expressions.expressions.Expression
 import org.example.expressions.interpreter.ExpressionsInterpreter
-import org.example.expressions.typing.ExpressionsTypeComputer
 
 import static extension org.eclipse.emf.ecore.util.EcoreUtil.*
+import org.example.expressions.typing.ExpressionsTypeSystem
 
 class ExpressionsEObjectHoverProvider extends DefaultEObjectHoverProvider {
-	@Inject extension ExpressionsTypeComputer
+	@Inject extension ExpressionsTypeSystem
 	@Inject extension ExpressionsInterpreter
 
 	override getHoverInfoAsHtml(EObject o) {

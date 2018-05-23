@@ -16,11 +16,11 @@ import org.example.expressions.expressions.Or
 import org.example.expressions.expressions.Plus
 import org.example.expressions.expressions.StringConstant
 import org.example.expressions.expressions.VariableRef
-import org.example.expressions.typing.ExpressionsTypeComputer
+import org.example.expressions.typing.ExpressionsTypeSystem
 
 class ExpressionsInterpreter {
 
-	@Inject extension ExpressionsTypeComputer
+	@Inject extension ExpressionsTypeSystem
 	@Inject IResourceScopeCache cache
 
 	def dispatch Object interpret(Expression e) {

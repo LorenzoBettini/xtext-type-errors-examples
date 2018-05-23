@@ -10,20 +10,20 @@ import org.eclipse.xtext.testing.util.ParseHelper
 import org.example.expressions.expressions.Expression
 import org.example.expressions.expressions.ExpressionsModel
 import org.example.expressions.typing.ExpressionsType
-import org.example.expressions.typing.ExpressionsTypeComputer
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import static org.example.expressions.typing.ExpressionsTypeComputer.*
 
 import static extension org.junit.Assert.*
+import static org.example.expressions.typing.ExpressionsTypeSystem.*
+import org.example.expressions.typing.ExpressionsTypeSystem
 
 @RunWith(XtextRunner)
 @InjectWith(ExpressionsInjectorProvider)
-class ExpressionsTypeComputerTest {
+class ExpressionsTypeSystemTest {
 
 	@Inject extension ParseHelper<ExpressionsModel>
-	@Inject extension ExpressionsTypeComputer
+	@Inject extension ExpressionsTypeSystem
 
 	@Test def void intConstant() { "10".assertEvalType(INT_TYPE) }
 	@Test def void stringConstant() { "'foo'".assertEvalType(STRING_TYPE) }
@@ -56,27 +56,27 @@ class ExpressionsTypeComputerTest {
 	@Test def void varRefToVarDefinedAfter() { "var i = j var j = i".assertType(null) }
 
 	@Test def void testIsInt() { 
-		(ExpressionsTypeComputer.INT_TYPE).isIntType.assertTrue
+		(ExpressionsTypeSystem.INT_TYPE).isIntType.assertTrue
 	}
 
 	@Test def void testIsString() { 
-		(ExpressionsTypeComputer.STRING_TYPE).isStringType.assertTrue
+		(ExpressionsTypeSystem.STRING_TYPE).isStringType.assertTrue
 	}
 
 	@Test def void testIsBool() { 
-		(ExpressionsTypeComputer.BOOL_TYPE).isBoolType.assertTrue
+		(ExpressionsTypeSystem.BOOL_TYPE).isBoolType.assertTrue
 	}
 
 	@Test def void testNotIsInt() { 
-		(ExpressionsTypeComputer.STRING_TYPE).isIntType.assertFalse
+		(ExpressionsTypeSystem.STRING_TYPE).isIntType.assertFalse
 	}
 
 	@Test def void testNotIsString() { 
-		(ExpressionsTypeComputer.INT_TYPE).isStringType.assertFalse
+		(ExpressionsTypeSystem.INT_TYPE).isStringType.assertFalse
 	}
 
 	@Test def void testNotIsBool() { 
-		(ExpressionsTypeComputer.INT_TYPE).isBoolType.assertFalse
+		(ExpressionsTypeSystem.INT_TYPE).isBoolType.assertFalse
 	}
 
 	def assertEvalType(CharSequence input, ExpressionsType expectedType) {
