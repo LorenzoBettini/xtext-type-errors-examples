@@ -17,6 +17,8 @@ import org.junit.runner.RunWith
 import static extension org.junit.Assert.*
 import static org.example.expressions.typing.ExpressionsTypeSystem.*
 import org.example.expressions.typing.ExpressionsTypeSystem
+import org.example.expressions.expressions.EvalExpression
+import org.example.expressions.expressions.Variable
 
 @RunWith(XtextRunner)
 @InjectWith(ExpressionsInjectorProvider)
@@ -97,16 +99,61 @@ class ExpressionsTypeSystemTest {
 		STRING_TYPE.isAssignableTo(BOOL_TYPE).assertFalse
 	}
 
-	def assertEvalType(CharSequence input, ExpressionsType expectedType) {
+	@Test def void mulExpectsInt() { 
+		"true * false".assertExpectedType(INT_TYPE)
+	}
+
+	@Test def void divExpectsInt() { 
+		"true / false".assertExpectedType(INT_TYPE)
+	}
+
+	@Test def void minusExpectsInt() { 
+		"true - false".assertExpectedType(INT_TYPE)
+	}
+
+	@Test def void andExpectsBoolean() { 
+		"true && 0".assertExpectedType(BOOL_TYPE)
+	}
+
+	@Test def void orExpectsBoolean() { 
+		"true || 0".assertExpectedType(BOOL_TYPE)
+	}
+
+	@Test def void notExpectsBoolean() { 
+		"!0".assertExpectedType(BOOL_TYPE)
+	}
+
+	@Test def void plusWithoutStringsExpectsInt() { 
+		"true + false".assertExpectedType(INT_TYPE)
+	}
+
+	@Test def void plusWithStringsHasNoExpectation() { 
+		'"a string" + false'.assertExpectedType(null)
+		'false + "a string"'.assertExpectedType(null)
+	}
+
+	@Test def void noExpectation() { 
+		("var i = 0".parse.elements.last as Variable).expression.expectedType.assertNull
+	}
+
+	def private assertExpectedType(CharSequence input, ExpressionsType expectation) {
+		val lastElement = ("eval " + input).parse.elements.last as EvalExpression
+		val rightMostExpression = lastElement.eAllContents.filter(Expression).last
+		
+		expectation.assertEquals
+			(rightMostExpression.expectedType)
+	}
+
+	def private assertEvalType(CharSequence input, ExpressionsType expectedType) {
 		("eval " + input).assertType(expectedType)
 	}
 
-	def assertType(CharSequence input, ExpressionsType expectedType) {
+	def private assertType(CharSequence input, ExpressionsType expectedType) {
 		input.parse.elements.last.
 			expression.assertType(expectedType)
 	}
 
-	def assertType(Expression e, ExpressionsType expectedType) {
+	def private assertType(Expression e, ExpressionsType expectedType) {
 		expectedType.assertSame(e.inferredType)
 	}
 

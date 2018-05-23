@@ -82,4 +82,24 @@ class ExpressionsTypeSystem {
 		return type2.isStringType || type1 === type2
 	}
 
+	/**
+	 * The expected type or null if there's no expectation
+	 */
+	def ExpressionsType expectedType(Expression exp) {
+		val container = exp.eContainer
+		switch (container) {
+			Not: BOOL_TYPE
+			MulOrDiv: INT_TYPE
+			Minus: INT_TYPE
+			And: BOOL_TYPE
+			Or: BOOL_TYPE
+			Plus: {
+				val leftType = container.left.inferredType;
+				val rightType = container.right?.inferredType;
+				if (!leftType.isStringType && !rightType.isStringType) {
+					INT_TYPE
+				}
+			}
+		}
+	}
 }
