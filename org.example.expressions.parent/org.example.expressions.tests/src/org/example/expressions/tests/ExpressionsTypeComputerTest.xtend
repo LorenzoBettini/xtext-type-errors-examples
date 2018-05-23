@@ -89,7 +89,7 @@ class ExpressionsTypeComputerTest {
 	}
 
 	def assertType(Expression e, ExpressionsType expectedType) {
-		expectedType.assertSame(e.typeFor)
+		expectedType.assertSame(e.inferredType)
 	}
 
 }

@@ -38,7 +38,7 @@ class ExpressionsTypeComputer {
 		type === BOOL_TYPE
 	}
 
-	def ExpressionsType typeFor(Expression e) {
+	def ExpressionsType inferredType(Expression e) {
 		switch (e) {
 			// trivial cases
 			StringConstant: STRING_TYPE
@@ -53,8 +53,8 @@ class ExpressionsTypeComputer {
 			Or: BOOL_TYPE
 			// recursive case
 			Plus: {
-				val leftType = e.left.typeFor
-				val rightType = e.right?.typeFor
+				val leftType = e.left.inferredType
+				val rightType = e.right?.inferredType
 				if (leftType.isStringType || rightType.isStringType)
 					STRING_TYPE
 				else
@@ -69,7 +69,7 @@ class ExpressionsTypeComputer {
 					// use a pair as the key, not to conflict with the
 					// use of cache we make in ExpressionsModelUtil
 					return cache.get("type" -> variable, variable.eResource) [
-						variable.expression.typeFor
+						variable.expression.inferredType
 					]
 				}
 			}

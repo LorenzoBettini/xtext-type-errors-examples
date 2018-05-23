@@ -44,7 +44,7 @@ class ExpressionsInterpreter {
 			Minus:
 				(e.left.interpret as Integer) - (e.right.interpret as Integer)
 			Plus: {
-				if (e.left.typeFor.isStringType || e.right.typeFor.isStringType)
+				if (e.left.inferredType.isStringType || e.right.inferredType.isStringType)
 					e.left.interpret.toString + e.right.interpret.toString
 				else
 					(e.left.interpret as Integer) + (e.right.interpret as Integer)
@@ -62,7 +62,7 @@ class ExpressionsInterpreter {
 				(e.left.interpret as Boolean) || (e.right.interpret as Boolean)
 			}
 			Comparison: {
-				if (e.left.typeFor.isStringType) {
+				if (e.left.inferredType.isStringType) {
 					val left = e.left.interpret as String
 					val right = e.right.interpret as String
 					switch (e.op) {

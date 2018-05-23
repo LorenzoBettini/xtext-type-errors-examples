@@ -127,7 +127,7 @@ class ExpressionsValidator extends AbstractExpressionsValidator {
 	}
 
 	def private ExpressionsType getTypeAndCheckNotNull(Expression exp, EReference reference) {
-		val type = exp?.typeFor
+		val type = exp?.inferredType
 		if (type === null)
 			error("null type", reference, TYPE_MISMATCH)
 		return type;

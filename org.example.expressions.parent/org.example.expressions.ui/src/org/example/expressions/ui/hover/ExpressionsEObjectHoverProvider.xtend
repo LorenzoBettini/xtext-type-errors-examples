@@ -19,7 +19,7 @@ class ExpressionsEObjectHoverProvider extends DefaultEObjectHoverProvider {
 			val exp = o as Expression
 			return '''
 				<p>
-				type  : <b>«exp.typeFor.toString»</b> <br>
+				type  : <b>«exp.inferredType.toString»</b> <br>
 				value : <b>«exp.interpret.toString»</b>
 				</p>
 			'''
