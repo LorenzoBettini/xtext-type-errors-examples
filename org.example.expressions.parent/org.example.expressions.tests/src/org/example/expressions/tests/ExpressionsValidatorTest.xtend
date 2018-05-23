@@ -31,13 +31,8 @@ class ExpressionsValidatorTest {
 				ExpressionsValidator.FORWARD_REFERENCE,
 				"variable forward reference not allowed: 'j'"
 			)
-			// since j cannot be referred, its type is null in j+1
-			assertError(ExpressionsPackage.eINSTANCE.expression,
-				ExpressionsValidator.TYPE_MISMATCH,
-				"null type"
-			)
-			// check that they are the only errors
-			2.assertEquals(validate.size)
+			// check that's the only error
+			assertEquals("errors: " + validate, 1, validate.size)
 		]
 	}
 
@@ -96,9 +91,9 @@ class ExpressionsValidatorTest {
 
 	@Test
 	def void testWrongBooleanPlus() {
-		"10 + true".assertNotBooleanType
-		"false + 0".assertNotBooleanType
-		"false + true".assertNotBooleanType
+		"10 + true".assertType(BOOL_TYPE, INT_TYPE)
+		"false + 0".assertType(BOOL_TYPE, INT_TYPE)
+		"false + true".assertType(BOOL_TYPE, INT_TYPE)
 	}
 
 	def void assertType(CharSequence input, 
@@ -108,7 +103,7 @@ class ExpressionsValidatorTest {
 			assertError(ExpressionsPackage.eINSTANCE.expression,
 				ExpressionsValidator.TYPE_MISMATCH,
 				"expected " + expectedActualType
-					+ " type, but was " + expectedWrongType)
+					+ ", but was " + expectedWrongType)
 	}
 
 	def void assertSameType(CharSequence input, 
