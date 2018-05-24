@@ -21,7 +21,21 @@ class FJParsingTest {
 	@Test
 	def void loadModel() {
 		val result = parseHelper.parse('''
-			Hello Xtext!
+			class Object {
+				
+			}
+			
+			class Pair extends Object {
+				private Object fst;
+				private Object snd;
+				
+				public Object getFst() {
+					return this.fst;
+				}
+				public Object getSnd() {
+					return this.snd;
+				}
+			}
 		''')
 		Assert.assertNotNull(result)
 		val errors = result.eResource.errors
