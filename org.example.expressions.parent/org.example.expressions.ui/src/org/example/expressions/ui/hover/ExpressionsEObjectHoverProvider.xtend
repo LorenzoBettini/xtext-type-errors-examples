@@ -17,14 +17,14 @@ class ExpressionsEObjectHoverProvider extends DefaultEObjectHoverProvider {
 				'''
 					<p>
 					expression <b>«o.eClass.name»</b> <br>
-					type  : <b>«o.inferredType.toString»</b> <br>
+					type  : <b>«o.inferredType»</b> <br>
 					</p>
 				'''
 			}
 			Variable: {
 				'''
 					<p>
-					type  : <b>«o.expression.inferredType.toString»</b> <br>
+					type  : <b>«o.expression.inferredType»</b> <br>
 					</p>
 				'''
 			}

@@ -6,6 +6,8 @@ package org.example.expressions.ui.labeling
 import com.google.inject.Inject
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
+import org.example.expressions.expressions.Variable
+import org.example.expressions.typing.ExpressionsTypeSystem
 
 /**
  * Provides labels for EObjects.
@@ -13,19 +15,14 @@ import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#label-provider
  */
 class ExpressionsLabelProvider extends DefaultEObjectLabelProvider {
+	@Inject extension ExpressionsTypeSystem
 
 	@Inject
 	new(AdapterFactoryLabelProvider delegate) {
 		super(delegate);
 	}
 
-	// Labels and icons can be computed like this:
-	
-//	def text(Greeting ele) {
-//		'A greeting to ' + ele.name
-//	}
-//
-//	def image(Greeting ele) {
-//		'Greeting.gif'
-//	}
+	def text(Variable v) {
+		v.name + " : " + v.expression.inferredType
+	}
 }
