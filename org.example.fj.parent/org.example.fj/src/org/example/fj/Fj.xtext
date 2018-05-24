@@ -2,8 +2,62 @@ grammar org.example.fj.Fj with org.eclipse.xtext.common.Terminals
 
 generate fj "http://www.example.org/fj/Fj"
 
-Model:
-	greetings+=Greeting*;
-	
-Greeting:
-	'Hello' name=ID '!';
+FJProgram :
+	(classes += FJClass)*
+	(main = FJExpression)? 
+;
+
+FJType: classref=[FJClass];
+
+FJClass:
+	'class' name=ID ('extends' superclass=[FJClass])? '{'
+		(members += FJMember)*
+	'}'
+;
+
+FJMember: FJField | FJMethod;
+
+enum FJAccessLevel:
+	PRIVATE='private' | PROTECTED='protected' | PUBLIC='public';
+
+FJField:
+	access=FJAccessLevel? type=FJType name=ID ';'
+;
+
+FJMethod:
+	access=FJAccessLevel?
+	type=FJType name=ID '(' (params+=FJParameter (',' params+=FJParameter)*)? ')' '{'
+		'return' expression=FJExpression ';'
+	'}'
+;
+
+FJParameter:
+	type=FJType name=ID
+;
+
+FJTypedElement:
+	FJMember | FJParameter;
+
+FJExpression:
+	FJTerminalExpression 
+	=>(
+		{FJMemberSelection.receiver=current} '.' 
+		message=[FJMember]
+		('(' (args+=FJExpression (',' args+=FJExpression)*)? ')')?
+	)*
+;
+
+FJTerminalExpression returns FJExpression:
+   FJThis |
+   FJSuper |
+   FJParamRef |
+   FJNew |
+   =>FJCast |
+   '(' FJExpression ')'
+;
+
+FJThis: {FJThis} 'this';
+FJSuper: {FJSuper} 'super';
+FJParamRef: parameter=[FJParameter];
+FJNew: 'new' type=FJType '(' (args+=FJExpression (',' args+=FJExpression)*)? ')';
+FJCast: '(' type=FJType ')' expression=FJTerminalExpression;
