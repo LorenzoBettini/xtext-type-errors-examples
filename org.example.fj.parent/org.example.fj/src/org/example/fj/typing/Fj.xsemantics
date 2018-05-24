@@ -1,1 +1,5 @@
+import org.example.fj.validation.AbstractFJValidator
+
 system org.example.fj.typing.FJTypeSystem
+
+validatorExtends AbstractFJValidator

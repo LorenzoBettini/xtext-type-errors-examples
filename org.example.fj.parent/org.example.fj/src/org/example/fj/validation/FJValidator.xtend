@@ -3,13 +3,14 @@
  */
 package org.example.fj.validation
 
+import org.example.fj.typing.validation.FJTypeSystemValidator
 
 /**
  * This class contains custom validation rules. 
  *
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
-class FJValidator extends AbstractFJValidator {
+class FJValidator extends FJTypeSystemValidator {
 	
 //	public static val INVALID_NAME = 'invalidName'
 //

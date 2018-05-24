@@ -2,11 +2,11 @@ package org.example.fj.typing.validation;
 
 import com.google.inject.Inject;
 import org.eclipse.xsemantics.runtime.validation.XsemanticsValidatorErrorGenerator;
-import org.eclipse.xtext.validation.AbstractDeclarativeValidator;
 import org.example.fj.typing.FJTypeSystem;
+import org.example.fj.validation.AbstractFJValidator;
 
 @SuppressWarnings("all")
-public class FJTypeSystemValidator extends AbstractDeclarativeValidator {
+public class FJTypeSystemValidator extends AbstractFJValidator {
   @Inject
   protected XsemanticsValidatorErrorGenerator errorGenerator;
   
