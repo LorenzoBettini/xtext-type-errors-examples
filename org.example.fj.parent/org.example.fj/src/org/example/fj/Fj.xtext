@@ -1,0 +1,9 @@
+grammar org.example.fj.Fj with org.eclipse.xtext.common.Terminals
+
+generate fj "http://www.example.org/fj/Fj"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
