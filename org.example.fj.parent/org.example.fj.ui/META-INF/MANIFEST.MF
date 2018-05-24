@@ -23,3 +23,4 @@ Export-Package: org.example.fj.ui.internal,
  org.example.fj.ui.quickfix,
  org.example.fj.ui.contentassist
 Bundle-Activator: org.example.fj.ui.internal.FjActivator
+Automatic-Module-Name: org.example.fj.ui

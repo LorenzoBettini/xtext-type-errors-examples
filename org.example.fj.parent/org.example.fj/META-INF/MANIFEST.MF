@@ -27,3 +27,4 @@ Export-Package: org.example.fj.parser.antlr.internal,
  org.example.fj.fj.util,
  org.example.fj.validation
 Import-Package: org.apache.log4j
+Automatic-Module-Name: org.example.fj
