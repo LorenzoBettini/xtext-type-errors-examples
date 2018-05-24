@@ -34,4 +34,14 @@ class ExpressionsContentAssistTest extends AbstractContentAssistTest {
 		// but j and k must be there
 	}
 
+	@Test
+	def void testProposeOnlyIntegerVariablesInMultiplication() {
+		newBuilder.append(
+			"var s='a' var k=0 var j=1 eval 1*   ").
+			//                               ^
+			assertTextAtCursorPosition("*", 1,
+			'!', '"Value"', '(', '*', '1', 'false', 'j', 'k', 'true')
+		// s must not be present in proposals,
+		// since it wouldn't be valid in a multiplication
+	}
 }

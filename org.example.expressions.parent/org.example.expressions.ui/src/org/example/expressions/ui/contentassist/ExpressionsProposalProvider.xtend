@@ -10,6 +10,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.example.expressions.ExpressionsModelUtil
 import org.example.expressions.expressions.Expression
+import org.example.expressions.typing.ExpressionsTypeSystem
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -17,17 +18,25 @@ import org.example.expressions.expressions.Expression
  */
 class ExpressionsProposalProvider extends AbstractExpressionsProposalProvider {
 	@Inject extension ExpressionsModelUtil
+	@Inject extension ExpressionsTypeSystem
 
 	override completeAtomic_Variable(EObject elem, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
-		if (elem instanceof Expression)
-			elem.variablesDefinedBefore.forEach[
-				variable |
-				acceptor.accept(
-					createCompletionProposal(
-						variable.name, variable.name + " - Variable", null, context
+		if (elem instanceof Expression) {
+			val elemType = elem.inferredType
+			elem.variablesDefinedBefore
+				.filter[
+					variable |
+					variable.expression.inferredType.isAssignableTo(elemType)
+				]
+				.forEach[
+					variable |
+					acceptor.accept(
+						createCompletionProposal(
+							variable.name, variable.name + " - Variable", null, context
+						)
 					)
-				)
-			]
+				]
+		}
 	}
 }
