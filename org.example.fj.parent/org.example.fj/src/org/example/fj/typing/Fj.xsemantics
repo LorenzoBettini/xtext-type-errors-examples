@@ -1,5 +1,130 @@
+import java.util.ArrayList
+import java.util.List
+import org.eclipse.xtext.EcoreUtil2
+import org.example.fj.fj.FJCast
+import org.example.fj.fj.FJClass
+import org.example.fj.fj.FJExpression
+import org.example.fj.fj.FJField
+import org.example.fj.fj.FJMemberSelection
+import org.example.fj.fj.FJMethod
+import org.example.fj.fj.FJNew
+import org.example.fj.fj.FJParamRef
+import org.example.fj.fj.FJThis
+import org.example.fj.fj.FJType
+import org.example.fj.fj.FJTypedElement
+import org.example.fj.fj.FjPackage
 import org.example.fj.validation.AbstractFJValidator
 
 system org.example.fj.typing.FJTypeSystem
 
 validatorExtends AbstractFJValidator
+
+auxiliary {
+	superclasses(FJClass cl) : List<FJClass>
+	fields(FJClass cl) : List<FJField>
+}
+
+judgments {
+	inferType |- FJExpression expression : output FJType
+		error "cannot type " + stringRep(expression)
+		source expression
+	subtype |- FJType left <: FJType right
+		error stringRep(left) + " is not a subtype of " + stringRep(right)
+	subtypesequence |- List<FJExpression> expressions << List<? extends FJTypedElement> elements
+}
+
+auxiliary superclasses(FJClass cl) {
+	getAll(cl,
+		FjPackage.eINSTANCE.FJClass_Superclass,
+		FjPackage.eINSTANCE.FJClass_Superclass,
+		typeof(FJClass)
+	)
+}
+
+auxiliary fields(FJClass clazz) {
+	var Iterable<FJField> fields = new ArrayList
+	
+	// inherited fields must come first
+	for (superclass : superclasses(clazz)) {
+		fields = 
+			(EcoreUtil2.typeSelect(superclass.members, typeof(FJField)) 
+				+ fields)
+	}
+	fields = fields + EcoreUtil2.typeSelect(clazz.members, typeof(FJField))
+	newArrayList(fields)
+}
+
+axiom TThis
+	G |- FJThis _this : env(G, 'this', FJType)
+
+rule TNew
+	G |- FJNew newExp : newExp.type
+from {
+	var fields = fields(newExp.type.classref)
+	// we want the superclasses' fields first
+	G |- newExp.args << fields
+}
+
+axiom TParamRef 
+	G |- FJParamRef paramref : paramref.parameter.type
+
+rule TSelection
+	G |- FJMemberSelection selection : selection.message.type
+from {
+	G |- selection.receiver : var FJType receiverType
+	// check message if it's a method call
+	val message = selection.message
+	switch (message) {
+		FJMethod: { 
+			G |- selection.args << message.params
+		}
+	}
+}
+
+rule TCast
+	G |- FJCast cast : cast.type
+from {
+	G |- cast.expression : var FJType expType
+	
+	G |- cast.type <: expType
+	or
+	G |- expType <: cast.type
+}
+
+// note that super as an expression cannot be typed
+
+rule ClassSubtyping
+	derives G |- FJType left <: FJType right
+from {
+	left.classref == right.classref
+	or
+	superclasses(left.classref).contains(right.classref)
+}
+
+rule SubtypeSequence derives
+	G |- List<FJExpression> expressions << List<FJTypedElement> typedElements
+from {
+	expressions.size == typedElements.size
+	or
+	fail
+		error "expected " + typedElements.size + " arguments, but got " +
+			expressions.size
+	
+	val typedElementsIterator = typedElements.iterator
+	for (exp : expressions) {
+		G |- exp : var FJType expType
+		G |- expType <: typedElementsIterator.next.type
+	}
+}
+
+// checkrules (for the generated validator)
+
+//checkrule CheckMethodBody for
+//	FJMethod method
+//from {
+//	val typeForThis = fjTypeUtils.createClassType(
+//		EcoreUtil2::getContainerOfType(method, typeof(Class))
+//	)
+//	'this' <- typeForThis |- method.body.expression |> method.type
+//}
+
