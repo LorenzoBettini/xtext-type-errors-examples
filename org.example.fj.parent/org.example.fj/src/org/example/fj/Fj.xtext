@@ -1,6 +1,6 @@
-grammar org.example.fj.Fj with org.eclipse.xtext.common.Terminals
+grammar org.example.fj.FJ with org.eclipse.xtext.common.Terminals
 
-generate fj "http://www.example.org/fj/Fj"
+generate fj "http://www.example.org/fj/FJ"
 
 FJProgram :
 	(classes += FJClass)*
