@@ -11,6 +11,8 @@ import org.example.fj.fj.FJProgram
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.example.fj.fj.FJMethod
+import org.example.fj.fj.FJCast
 
 @RunWith(XtextRunner)
 @InjectWith(FJInjectorProvider)
@@ -19,7 +21,7 @@ class FJParsingTest {
 	ParseHelper<FJProgram> parseHelper
 	
 	@Test
-	def void loadModel() {
+	def void testPairClass() {
 		val result = parseHelper.parse('''
 			class Object {
 				
@@ -40,5 +42,32 @@ class FJParsingTest {
 		Assert.assertNotNull(result)
 		val errors = result.eResource.errors
 		Assert.assertTrue('''Unexpected errors: «errors.join(", ")»''', errors.isEmpty)
+	}
+
+	@Test
+	def void testCast() {
+		val result = parseHelper.parse('''
+			class Object {
+				
+			}
+			
+			class Pair extends Object {
+				private Object fst;
+				private Object snd;
+				
+				public Object getFst() {
+					return this.fst;
+				}
+				public Object getSnd() {
+					return (Object) this.snd;
+				}
+			}
+		''')
+		Assert.assertNotNull(result)
+		val errors = result.eResource.errors
+		Assert.assertTrue('''Unexpected errors: «errors.join(", ")»''', errors.isEmpty)
+		Assert.assertNotNull(
+			result.classes.last.members.filter(FJMethod).last.expression
+			as FJCast)
 	}
 }

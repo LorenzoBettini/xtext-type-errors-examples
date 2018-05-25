@@ -60,4 +60,4 @@ FJThis: {FJThis} 'this';
 FJSuper: {FJSuper} 'super';
 FJParamRef: parameter=[FJParameter];
 FJNew: 'new' type=FJType '(' (args+=FJExpression (',' args+=FJExpression)*)? ')';
-FJCast: '(' type=FJType ')' expression=FJTerminalExpression;
+FJCast: '(' type=FJType ')' expression=FJExpression;
