@@ -6,6 +6,7 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xsemantics.runtime.ErrorInformation;
@@ -39,6 +40,8 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   
   public final static String FIELDS = "org.example.fj.typing.Fields";
   
+  public final static String METHODS = "org.example.fj.typing.Methods";
+  
   public final static String TTHIS = "org.example.fj.typing.TThis";
   
   public final static String TNEW = "org.example.fj.typing.TNew";
@@ -56,6 +59,8 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   private PolymorphicDispatcher<List<FJClass>> superclassesDispatcher;
   
   private PolymorphicDispatcher<List<FJField>> fieldsDispatcher;
+  
+  private PolymorphicDispatcher<List<FJMethod>> methodsDispatcher;
   
   private PolymorphicDispatcher<Result<FJType>> inferTypeDispatcher;
   
@@ -78,6 +83,8 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	"superclassesImpl", 2);
     fieldsDispatcher = buildPolymorphicDispatcher(
     	"fieldsImpl", 2);
+    methodsDispatcher = buildPolymorphicDispatcher(
+    	"methodsImpl", 2);
   }
   
   public List<FJClass> superclasses(final FJClass cl) throws RuleFailedException {
@@ -101,6 +108,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	return fieldsInternal(_trace_, cl);
     } catch (Exception _e_fields) {
     	throw extractRuleFailedException(_e_fields);
+    }
+  }
+  
+  public List<FJMethod> methods(final FJClass cl) throws RuleFailedException {
+    return methods(null, cl);
+  }
+  
+  public List<FJMethod> methods(final RuleApplicationTrace _trace_, final FJClass cl) throws RuleFailedException {
+    try {
+    	return methodsInternal(_trace_, cl);
+    } catch (Exception _e_methods) {
+    	throw extractRuleFailedException(_e_methods);
     }
   }
   
@@ -211,6 +230,20 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected void fieldsThrowException(final String _error, final String _issue, final Exception _ex, final FJClass cl, final ErrorInformation[] _errorInformations) throws RuleFailedException {
+    throwRuleFailedException(_error, _issue, _ex, _errorInformations);
+  }
+  
+  protected List<FJMethod> methodsInternal(final RuleApplicationTrace _trace_, final FJClass cl) {
+    try {
+    	checkParamsNotNull(cl);
+    	return methodsDispatcher.invoke(_trace_, cl);
+    } catch (Exception _e_methods) {
+    	sneakyThrowRuleFailedException(_e_methods);
+    	return null;
+    }
+  }
+  
+  protected void methodsThrowException(final String _error, final String _issue, final Exception _ex, final FJClass cl, final ErrorInformation[] _errorInformations) throws RuleFailedException {
     throwRuleFailedException(_error, _issue, _ex, _errorInformations);
   }
   
@@ -327,6 +360,38 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
       fields = _plus_1;
       final Iterable<FJField> _converted_fields = (Iterable<FJField>)fields;
       _xblockexpression = (CollectionLiterals.<FJField>newArrayList(((FJField[])Conversions.unwrapArray(_converted_fields, FJField.class))));
+    }
+    return _xblockexpression;
+  }
+  
+  protected List<FJMethod> methodsImpl(final RuleApplicationTrace _trace_, final FJClass clazz) throws RuleFailedException {
+    try {
+    	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
+    	final List<FJMethod> _result_ = applyAuxFunMethods(_subtrace_, clazz);
+    	addToTrace(_trace_, new Provider<Object>() {
+    		public Object get() {
+    			return auxFunName("methods") + "(" + stringRep(clazz)+ ")" + " = " + stringRep(_result_);
+    		}
+    	});
+    	addAsSubtrace(_trace_, _subtrace_);
+    	return _result_;
+    } catch (Exception e_applyAuxFunMethods) {
+    	methodsThrowException(auxFunName("methods") + "(" + stringRep(clazz)+ ")",
+    		METHODS,
+    		e_applyAuxFunMethods, clazz, new ErrorInformation[] {new ErrorInformation(clazz)});
+    	return null;
+    }
+  }
+  
+  protected List<FJMethod> applyAuxFunMethods(final RuleApplicationTrace _trace_, final FJClass clazz) throws RuleFailedException {
+    List<FJMethod> _xblockexpression = null;
+    {
+      final List<FJMethod> methods = EcoreUtil2.<FJMethod>typeSelect(clazz.getMembers(), FJMethod.class);
+      final Consumer<FJClass> _function = (FJClass c) -> {
+        methods.addAll(EcoreUtil2.<FJMethod>typeSelect(c.getMembers(), FJMethod.class));
+      };
+      this.superclassesInternal(_trace_, clazz).forEach(_function);
+      _xblockexpression = (methods);
     }
     return _xblockexpression;
   }

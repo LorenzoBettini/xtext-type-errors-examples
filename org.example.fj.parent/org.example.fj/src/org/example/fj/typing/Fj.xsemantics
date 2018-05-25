@@ -22,6 +22,7 @@ validatorExtends AbstractFJValidator
 auxiliary {
 	superclasses(FJClass cl) : List<FJClass>
 	fields(FJClass cl) : List<FJField>
+	methods(FJClass cl) : List<FJMethod>
 }
 
 judgments {
@@ -52,6 +53,15 @@ auxiliary fields(FJClass clazz) {
 	}
 	fields = fields + EcoreUtil2.typeSelect(clazz.members, typeof(FJField))
 	newArrayList(fields)
+}
+
+auxiliary methods(FJClass clazz) {
+	val methods = EcoreUtil2.typeSelect(clazz.members, typeof(FJMethod))
+	superclasses(clazz).forEach [ 
+		c | 
+		methods.addAll(EcoreUtil2.typeSelect(c.members, typeof(FJMethod)))
+	]
+	methods
 }
 
 axiom TThis
