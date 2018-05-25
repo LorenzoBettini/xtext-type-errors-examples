@@ -2,6 +2,9 @@ package org.example.fj.typing.validation;
 
 import com.google.inject.Inject;
 import org.eclipse.xsemantics.runtime.validation.XsemanticsValidatorErrorGenerator;
+import org.eclipse.xtext.validation.Check;
+import org.example.fj.fj.FJMethod;
+import org.example.fj.fj.FJProgram;
 import org.example.fj.typing.FJTypeSystem;
 import org.example.fj.validation.AbstractFJValidator;
 
@@ -15,5 +18,19 @@ public class FJTypeSystemValidator extends AbstractFJValidator {
   
   protected FJTypeSystem getXsemanticsSystem() {
     return this.xsemanticsSystem;
+  }
+  
+  @Check
+  public void checkMethodBody(final FJMethod method) {
+    errorGenerator.generateErrors(this,
+    	getXsemanticsSystem().checkMethodBody(method),
+    		method);
+  }
+  
+  @Check
+  public void checkMain(final FJProgram program) {
+    errorGenerator.generateErrors(this,
+    	getXsemanticsSystem().checkMain(program),
+    		program);
   }
 }

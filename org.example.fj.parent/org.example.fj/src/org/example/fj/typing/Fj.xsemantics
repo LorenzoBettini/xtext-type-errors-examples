@@ -13,6 +13,7 @@ import org.example.fj.fj.FJThis
 import org.example.fj.fj.FJTypedElement
 import org.example.fj.fj.FjPackage
 import org.example.fj.validation.AbstractFJValidator
+import org.example.fj.fj.FJProgram
 
 system org.example.fj.typing.FJTypeSystem
 
@@ -29,7 +30,7 @@ judgments {
 		error "cannot type " + stringRep(expression)
 		source expression
 	subtype |- FJClass left <: FJClass right
-		error stringRep(left) + " is not a subtype of " + stringRep(right)
+		error left.name + " is not a subtype of " + right.name
 	subtypesequence |- List<FJExpression> expressions << List<? extends FJTypedElement> elements
 }
 
@@ -128,12 +129,26 @@ from {
 
 // checkrules (for the generated validator)
 
-//checkrule CheckMethodBody for
-//	FJMethod method
-//from {
-//	val typeForThis = fjTypeUtils.createClassType(
-//		EcoreUtil2::getContainerOfType(method, typeof(Class))
-//	)
-//	'this' <- typeForThis |- method.body.expression |> method.type
-//}
+checkrule CheckMethodBody for
+	FJMethod method
+from {
+	// pass an environment for "this"
+	'this' <- method.eContainer |- 
+		method.expression : var FJClass bodyType
+
+	empty |- bodyType <: method.type
+	or
+	fail
+		error "Type mismatch: cannot convert from " +
+			bodyType.name + " to " + method.type.name
+		source method.expression
+}
+
+checkrule CheckMain for
+	FJProgram program
+from {
+	program.main === null // nothing to check
+	or
+	empty |- program.main : var FJClass mainType
+}
 

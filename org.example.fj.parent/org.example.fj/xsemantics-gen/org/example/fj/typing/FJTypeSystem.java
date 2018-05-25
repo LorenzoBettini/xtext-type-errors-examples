@@ -29,6 +29,7 @@ import org.example.fj.fj.FJMethod;
 import org.example.fj.fj.FJNew;
 import org.example.fj.fj.FJParamRef;
 import org.example.fj.fj.FJParameter;
+import org.example.fj.fj.FJProgram;
 import org.example.fj.fj.FJThis;
 import org.example.fj.fj.FJTypedElement;
 import org.example.fj.fj.FjPackage;
@@ -204,6 +205,88 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
   }
   
+  public Result<Boolean> checkMethodBody(final FJMethod method) {
+    return checkMethodBody(null, method);
+  }
+  
+  public Result<Boolean> checkMethodBody(final RuleApplicationTrace _trace_, final FJMethod method) {
+    try {
+    	return checkMethodBodyInternal(_trace_, method);
+    } catch (Exception _e_CheckMethodBody) {
+    	return resultForFailure(_e_CheckMethodBody);
+    }
+  }
+  
+  protected Result<Boolean> checkMethodBodyInternal(final RuleApplicationTrace _trace_, final FJMethod method) throws RuleFailedException {
+    /* 'this' <- method.eContainer |- method.expression : var FJClass bodyType */
+    FJExpression _expression = method.getExpression();
+    FJClass bodyType = null;
+    EObject _eContainer = method.eContainer();
+    Result<FJClass> result = inferTypeInternal(environmentEntry("this", _eContainer), _trace_, _expression);
+    checkAssignableTo(result.getFirst(), FJClass.class);
+    bodyType = (FJClass) result.getFirst();
+    
+    /* empty |- bodyType <: method.type or fail error "Type mismatch: cannot convert from " + bodyType.name + " to " + method.type.name source method.expression */
+    {
+      RuleFailedException previousFailure = null;
+      try {
+        /* empty |- bodyType <: method.type */
+        FJClass _type = method.getType();
+        subtypeInternal(emptyEnvironment(), _trace_, bodyType, _type);
+      } catch (Exception e) {
+        previousFailure = extractRuleFailedException(e);
+        /* fail error "Type mismatch: cannot convert from " + bodyType.name + " to " + method.type.name source method.expression */
+        String _name = bodyType.getName();
+        String _plus = ("Type mismatch: cannot convert from " + _name);
+        String _plus_1 = (_plus + " to ");
+        String _name_1 = method.getType().getName();
+        String _plus_2 = (_plus_1 + _name_1);
+        String error = _plus_2;
+        FJExpression _expression_1 = method.getExpression();
+        EObject source = _expression_1;
+        throwForExplicitFail(error, new ErrorInformation(source, null));
+      }
+    }
+    return new Result<Boolean>(true);
+  }
+  
+  public Result<Boolean> checkMain(final FJProgram program) {
+    return checkMain(null, program);
+  }
+  
+  public Result<Boolean> checkMain(final RuleApplicationTrace _trace_, final FJProgram program) {
+    try {
+    	return checkMainInternal(_trace_, program);
+    } catch (Exception _e_CheckMain) {
+    	return resultForFailure(_e_CheckMain);
+    }
+  }
+  
+  protected Result<Boolean> checkMainInternal(final RuleApplicationTrace _trace_, final FJProgram program) throws RuleFailedException {
+    /* program.main === null or empty |- program.main : var FJClass mainType */
+    {
+      RuleFailedException previousFailure = null;
+      try {
+        FJExpression _main = program.getMain();
+        boolean _tripleEquals = (_main == null);
+        /* program.main === null */
+        if (!_tripleEquals) {
+          sneakyThrowRuleFailedException("program.main === null");
+        }
+      } catch (Exception e) {
+        previousFailure = extractRuleFailedException(e);
+        /* empty |- program.main : var FJClass mainType */
+        FJExpression _main_1 = program.getMain();
+        FJClass mainType = null;
+        Result<FJClass> result = inferTypeInternal(emptyEnvironment(), _trace_, _main_1);
+        checkAssignableTo(result.getFirst(), FJClass.class);
+        mainType = (FJClass) result.getFirst();
+        
+      }
+    }
+    return new Result<Boolean>(true);
+  }
+  
   protected List<FJClass> superclassesInternal(final RuleApplicationTrace _trace_, final FJClass cl) {
     try {
     	checkParamsNotNull(cl);
@@ -276,10 +359,10 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected void subtypeThrowException(final String _error, final String _issue, final Exception _ex, final FJClass left, final FJClass right, final ErrorInformation[] _errorInformations) throws RuleFailedException {
-    String _stringRep = this.stringRep(left);
-    String _plus = (_stringRep + " is not a subtype of ");
-    String _stringRep_1 = this.stringRep(right);
-    String _plus_1 = (_plus + _stringRep_1);
+    String _name = left.getName();
+    String _plus = (_name + " is not a subtype of ");
+    String _name_1 = right.getName();
+    String _plus_1 = (_plus + _name_1);
     String error = _plus_1;
     throwRuleFailedException(error,
     	_issue, _ex, new ErrorInformation(null, null));
