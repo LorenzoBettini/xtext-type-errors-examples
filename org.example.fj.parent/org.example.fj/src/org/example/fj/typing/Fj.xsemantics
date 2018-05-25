@@ -10,7 +10,6 @@ import org.example.fj.fj.FJMethod
 import org.example.fj.fj.FJNew
 import org.example.fj.fj.FJParamRef
 import org.example.fj.fj.FJThis
-import org.example.fj.fj.FJType
 import org.example.fj.fj.FJTypedElement
 import org.example.fj.fj.FjPackage
 import org.example.fj.validation.AbstractFJValidator
@@ -26,10 +25,10 @@ auxiliary {
 }
 
 judgments {
-	inferType |- FJExpression expression : output FJType
+	inferType |- FJExpression expression : output FJClass
 		error "cannot type " + stringRep(expression)
 		source expression
-	subtype |- FJType left <: FJType right
+	subtype |- FJClass left <: FJClass right
 		error stringRep(left) + " is not a subtype of " + stringRep(right)
 	subtypesequence |- List<FJExpression> expressions << List<? extends FJTypedElement> elements
 }
@@ -65,12 +64,12 @@ auxiliary methods(FJClass clazz) {
 }
 
 axiom TThis
-	G |- FJThis _this : env(G, 'this', FJType)
+	G |- FJThis _this : env(G, 'this', FJClass)
 
 rule TNew
 	G |- FJNew newExp : newExp.type
 from {
-	var fields = fields(newExp.type.classref)
+	var fields = fields(newExp.type)
 	// we want the superclasses' fields first
 	G |- newExp.args << fields
 }
@@ -81,7 +80,7 @@ axiom TParamRef
 rule TSelection
 	G |- FJMemberSelection selection : selection.message.type
 from {
-	G |- selection.receiver : var FJType receiverType
+	G |- selection.receiver : var FJClass receiverType
 	// check message if it's a method call
 	val message = selection.message
 	switch (message) {
@@ -94,7 +93,7 @@ from {
 rule TCast
 	G |- FJCast cast : cast.type
 from {
-	G |- cast.expression : var FJType expType
+	G |- cast.expression : var FJClass expType
 	
 	G |- cast.type <: expType
 	or
@@ -104,11 +103,11 @@ from {
 // note that super as an expression cannot be typed
 
 rule ClassSubtyping
-	derives G |- FJType left <: FJType right
+	derives G |- FJClass left <: FJClass right
 from {
-	left.classref == right.classref
+	left == right
 	or
-	superclasses(left.classref).contains(right.classref)
+	superclasses(left).contains(right)
 }
 
 rule SubtypeSequence derives
@@ -122,7 +121,7 @@ from {
 	
 	val typedElementsIterator = typedElements.iterator
 	for (exp : expressions) {
-		G |- exp : var FJType expType
+		G |- exp : var FJClass expType
 		G |- expType <: typedElementsIterator.next.type
 	}
 }

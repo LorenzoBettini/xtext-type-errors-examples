@@ -7,8 +7,6 @@ FJProgram :
 	(main = FJExpression)? 
 ;
 
-FJType: classref=[FJClass];
-
 FJClass:
 	'class' name=ID ('extends' superclass=[FJClass])? '{'
 		(members += FJMember)*
@@ -21,18 +19,18 @@ enum FJAccessLevel:
 	PRIVATE='private' | PROTECTED='protected' | PUBLIC='public';
 
 FJField:
-	access=FJAccessLevel? type=FJType name=ID ';'
+	access=FJAccessLevel? type=[FJClass] name=ID ';'
 ;
 
 FJMethod:
 	access=FJAccessLevel?
-	type=FJType name=ID '(' (params+=FJParameter (',' params+=FJParameter)*)? ')' '{'
+	type=[FJClass] name=ID '(' (params+=FJParameter (',' params+=FJParameter)*)? ')' '{'
 		'return' expression=FJExpression ';'
 	'}'
 ;
 
 FJParameter:
-	type=FJType name=ID
+	type=[FJClass] name=ID
 ;
 
 FJTypedElement:
@@ -59,5 +57,5 @@ FJTerminalExpression returns FJExpression:
 FJThis: {FJThis} 'this';
 FJSuper: {FJSuper} 'super';
 FJParamRef: parameter=[FJParameter];
-FJNew: 'new' type=FJType '(' (args+=FJExpression (',' args+=FJExpression)*)? ')';
-FJCast: '(' type=FJType ')' expression=FJExpression;
+FJNew: 'new' type=[FJClass] '(' (args+=FJExpression (',' args+=FJExpression)*)? ')';
+FJCast: '(' type=[FJClass] ')' expression=FJExpression;

@@ -30,7 +30,6 @@ import org.example.fj.fj.FJNew;
 import org.example.fj.fj.FJParamRef;
 import org.example.fj.fj.FJParameter;
 import org.example.fj.fj.FJThis;
-import org.example.fj.fj.FJType;
 import org.example.fj.fj.FJTypedElement;
 import org.example.fj.fj.FjPackage;
 
@@ -62,7 +61,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   
   private PolymorphicDispatcher<List<FJMethod>> methodsDispatcher;
   
-  private PolymorphicDispatcher<Result<FJType>> inferTypeDispatcher;
+  private PolymorphicDispatcher<Result<FJClass>> inferTypeDispatcher;
   
   private PolymorphicDispatcher<Result<Boolean>> subtypeDispatcher;
   
@@ -123,15 +122,15 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
   }
   
-  public Result<FJType> inferType(final FJExpression expression) {
+  public Result<FJClass> inferType(final FJExpression expression) {
     return inferType(new RuleEnvironment(), null, expression);
   }
   
-  public Result<FJType> inferType(final RuleEnvironment _environment_, final FJExpression expression) {
+  public Result<FJClass> inferType(final RuleEnvironment _environment_, final FJExpression expression) {
     return inferType(_environment_, null, expression);
   }
   
-  public Result<FJType> inferType(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression expression) {
+  public Result<FJClass> inferType(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression expression) {
     try {
     	return inferTypeInternal(_environment_, _trace_, expression);
     } catch (Exception _e_inferType) {
@@ -139,15 +138,15 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
   }
   
-  public Result<Boolean> subtype(final FJType left, final FJType right) {
+  public Result<Boolean> subtype(final FJClass left, final FJClass right) {
     return subtype(new RuleEnvironment(), null, left, right);
   }
   
-  public Result<Boolean> subtype(final RuleEnvironment _environment_, final FJType left, final FJType right) {
+  public Result<Boolean> subtype(final RuleEnvironment _environment_, final FJClass left, final FJClass right) {
     return subtype(_environment_, null, left, right);
   }
   
-  public Result<Boolean> subtype(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJType left, final FJType right) {
+  public Result<Boolean> subtype(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJClass left, final FJClass right) {
     try {
     	return subtypeInternal(_environment_, _trace_, left, right);
     } catch (Exception _e_subtype) {
@@ -155,15 +154,15 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
   }
   
-  public Boolean subtypeSucceeded(final FJType left, final FJType right) {
+  public Boolean subtypeSucceeded(final FJClass left, final FJClass right) {
     return subtypeSucceeded(new RuleEnvironment(), null, left, right);
   }
   
-  public Boolean subtypeSucceeded(final RuleEnvironment _environment_, final FJType left, final FJType right) {
+  public Boolean subtypeSucceeded(final RuleEnvironment _environment_, final FJClass left, final FJClass right) {
     return subtypeSucceeded(_environment_, null, left, right);
   }
   
-  public Boolean subtypeSucceeded(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJType left, final FJType right) {
+  public Boolean subtypeSucceeded(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJClass left, final FJClass right) {
     try {
     	subtypeInternal(_environment_, _trace_, left, right);
     	return true;
@@ -247,7 +246,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     throwRuleFailedException(_error, _issue, _ex, _errorInformations);
   }
   
-  protected Result<FJType> inferTypeInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression expression) {
+  protected Result<FJClass> inferTypeInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression expression) {
     try {
     	checkParamsNotNull(expression);
     	return inferTypeDispatcher.invoke(_environment_, _trace_, expression);
@@ -266,7 +265,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	_issue, _ex, new ErrorInformation(source, null));
   }
   
-  protected Result<Boolean> subtypeInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJType left, final FJType right) {
+  protected Result<Boolean> subtypeInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJClass left, final FJClass right) {
     try {
     	checkParamsNotNull(left, right);
     	return subtypeDispatcher.invoke(_environment_, _trace_, left, right);
@@ -276,7 +275,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
   }
   
-  protected void subtypeThrowException(final String _error, final String _issue, final Exception _ex, final FJType left, final FJType right, final ErrorInformation[] _errorInformations) throws RuleFailedException {
+  protected void subtypeThrowException(final String _error, final String _issue, final Exception _ex, final FJClass left, final FJClass right, final ErrorInformation[] _errorInformations) throws RuleFailedException {
     String _stringRep = this.stringRep(left);
     String _plus = (_stringRep + " is not a subtype of ");
     String _stringRep_1 = this.stringRep(right);
@@ -396,10 +395,10 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     return _xblockexpression;
   }
   
-  protected Result<FJType> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJThis _this) throws RuleFailedException {
+  protected Result<FJClass> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJThis _this) throws RuleFailedException {
     try {
     	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
-    	final Result<FJType> _result_ = applyRuleTThis(G, _subtrace_, _this);
+    	final Result<FJClass> _result_ = applyRuleTThis(G, _subtrace_, _this);
     	addToTrace(_trace_, new Provider<Object>() {
     		public Object get() {
     			return ruleName("TThis") + stringRepForEnv(G) + " |- " + stringRep(_this) + " : " + stringRep(_result_.getFirst());
@@ -408,27 +407,27 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	addAsSubtrace(_trace_, _subtrace_);
     	return _result_;
     } catch (Exception e_applyRuleTThis) {
-    	inferTypeThrowException(ruleName("TThis") + stringRepForEnv(G) + " |- " + stringRep(_this) + " : " + "FJType",
+    	inferTypeThrowException(ruleName("TThis") + stringRepForEnv(G) + " |- " + stringRep(_this) + " : " + "FJClass",
     		TTHIS,
     		e_applyRuleTThis, _this, new ErrorInformation[] {new ErrorInformation(_this)});
     	return null;
     }
   }
   
-  protected Result<FJType> applyRuleTThis(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJThis _this) throws RuleFailedException {
+  protected Result<FJClass> applyRuleTThis(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJThis _this) throws RuleFailedException {
     
-    return new Result<FJType>(_applyRuleTThis_1(G, _this));
+    return new Result<FJClass>(_applyRuleTThis_1(G, _this));
   }
   
-  private FJType _applyRuleTThis_1(final RuleEnvironment G, final FJThis _this) throws RuleFailedException {
-    FJType _env = this.<FJType>env(G, "this", FJType.class);
+  private FJClass _applyRuleTThis_1(final RuleEnvironment G, final FJThis _this) throws RuleFailedException {
+    FJClass _env = this.<FJClass>env(G, "this", FJClass.class);
     return _env;
   }
   
-  protected Result<FJType> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJNew newExp) throws RuleFailedException {
+  protected Result<FJClass> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJNew newExp) throws RuleFailedException {
     try {
     	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
-    	final Result<FJType> _result_ = applyRuleTNew(G, _subtrace_, newExp);
+    	final Result<FJClass> _result_ = applyRuleTNew(G, _subtrace_, newExp);
     	addToTrace(_trace_, new Provider<Object>() {
     		public Object get() {
     			return ruleName("TNew") + stringRepForEnv(G) + " |- " + stringRep(newExp) + " : " + stringRep(_result_.getFirst());
@@ -437,30 +436,30 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	addAsSubtrace(_trace_, _subtrace_);
     	return _result_;
     } catch (Exception e_applyRuleTNew) {
-    	inferTypeThrowException(ruleName("TNew") + stringRepForEnv(G) + " |- " + stringRep(newExp) + " : " + "FJType",
+    	inferTypeThrowException(ruleName("TNew") + stringRepForEnv(G) + " |- " + stringRep(newExp) + " : " + "FJClass",
     		TNEW,
     		e_applyRuleTNew, newExp, new ErrorInformation[] {new ErrorInformation(newExp)});
     	return null;
     }
   }
   
-  protected Result<FJType> applyRuleTNew(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJNew newExp) throws RuleFailedException {
-    List<FJField> fields = this.fieldsInternal(_trace_, newExp.getType().getClassref());
+  protected Result<FJClass> applyRuleTNew(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJNew newExp) throws RuleFailedException {
+    List<FJField> fields = this.fieldsInternal(_trace_, newExp.getType());
     /* G |- newExp.args << fields */
     EList<FJExpression> _args = newExp.getArgs();
     subtypesequenceInternal(G, _trace_, _args, fields);
-    return new Result<FJType>(_applyRuleTNew_1(G, newExp));
+    return new Result<FJClass>(_applyRuleTNew_1(G, newExp));
   }
   
-  private FJType _applyRuleTNew_1(final RuleEnvironment G, final FJNew newExp) throws RuleFailedException {
-    FJType _type = newExp.getType();
+  private FJClass _applyRuleTNew_1(final RuleEnvironment G, final FJNew newExp) throws RuleFailedException {
+    FJClass _type = newExp.getType();
     return _type;
   }
   
-  protected Result<FJType> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJParamRef paramref) throws RuleFailedException {
+  protected Result<FJClass> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJParamRef paramref) throws RuleFailedException {
     try {
     	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
-    	final Result<FJType> _result_ = applyRuleTParamRef(G, _subtrace_, paramref);
+    	final Result<FJClass> _result_ = applyRuleTParamRef(G, _subtrace_, paramref);
     	addToTrace(_trace_, new Provider<Object>() {
     		public Object get() {
     			return ruleName("TParamRef") + stringRepForEnv(G) + " |- " + stringRep(paramref) + " : " + stringRep(_result_.getFirst());
@@ -469,27 +468,27 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	addAsSubtrace(_trace_, _subtrace_);
     	return _result_;
     } catch (Exception e_applyRuleTParamRef) {
-    	inferTypeThrowException(ruleName("TParamRef") + stringRepForEnv(G) + " |- " + stringRep(paramref) + " : " + "FJType",
+    	inferTypeThrowException(ruleName("TParamRef") + stringRepForEnv(G) + " |- " + stringRep(paramref) + " : " + "FJClass",
     		TPARAMREF,
     		e_applyRuleTParamRef, paramref, new ErrorInformation[] {new ErrorInformation(paramref)});
     	return null;
     }
   }
   
-  protected Result<FJType> applyRuleTParamRef(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJParamRef paramref) throws RuleFailedException {
+  protected Result<FJClass> applyRuleTParamRef(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJParamRef paramref) throws RuleFailedException {
     
-    return new Result<FJType>(_applyRuleTParamRef_1(G, paramref));
+    return new Result<FJClass>(_applyRuleTParamRef_1(G, paramref));
   }
   
-  private FJType _applyRuleTParamRef_1(final RuleEnvironment G, final FJParamRef paramref) throws RuleFailedException {
-    FJType _type = paramref.getParameter().getType();
+  private FJClass _applyRuleTParamRef_1(final RuleEnvironment G, final FJParamRef paramref) throws RuleFailedException {
+    FJClass _type = paramref.getParameter().getType();
     return _type;
   }
   
-  protected Result<FJType> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJMemberSelection selection) throws RuleFailedException {
+  protected Result<FJClass> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJMemberSelection selection) throws RuleFailedException {
     try {
     	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
-    	final Result<FJType> _result_ = applyRuleTSelection(G, _subtrace_, selection);
+    	final Result<FJClass> _result_ = applyRuleTSelection(G, _subtrace_, selection);
     	addToTrace(_trace_, new Provider<Object>() {
     		public Object get() {
     			return ruleName("TSelection") + stringRepForEnv(G) + " |- " + stringRep(selection) + " : " + stringRep(_result_.getFirst());
@@ -498,20 +497,20 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	addAsSubtrace(_trace_, _subtrace_);
     	return _result_;
     } catch (Exception e_applyRuleTSelection) {
-    	inferTypeThrowException(ruleName("TSelection") + stringRepForEnv(G) + " |- " + stringRep(selection) + " : " + "FJType",
+    	inferTypeThrowException(ruleName("TSelection") + stringRepForEnv(G) + " |- " + stringRep(selection) + " : " + "FJClass",
     		TSELECTION,
     		e_applyRuleTSelection, selection, new ErrorInformation[] {new ErrorInformation(selection)});
     	return null;
     }
   }
   
-  protected Result<FJType> applyRuleTSelection(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJMemberSelection selection) throws RuleFailedException {
-    /* G |- selection.receiver : var FJType receiverType */
+  protected Result<FJClass> applyRuleTSelection(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJMemberSelection selection) throws RuleFailedException {
+    /* G |- selection.receiver : var FJClass receiverType */
     FJExpression _receiver = selection.getReceiver();
-    FJType receiverType = null;
-    Result<FJType> result = inferTypeInternal(G, _trace_, _receiver);
-    checkAssignableTo(result.getFirst(), FJType.class);
-    receiverType = (FJType) result.getFirst();
+    FJClass receiverType = null;
+    Result<FJClass> result = inferTypeInternal(G, _trace_, _receiver);
+    checkAssignableTo(result.getFirst(), FJClass.class);
+    receiverType = (FJClass) result.getFirst();
     
     final FJMember message = selection.getMessage();
     boolean _matched = false;
@@ -522,18 +521,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
       EList<FJParameter> _params = ((FJMethod)message).getParams();
       subtypesequenceInternal(G, _trace_, _args, _params);
     }
-    return new Result<FJType>(_applyRuleTSelection_1(G, selection));
+    return new Result<FJClass>(_applyRuleTSelection_1(G, selection));
   }
   
-  private FJType _applyRuleTSelection_1(final RuleEnvironment G, final FJMemberSelection selection) throws RuleFailedException {
-    FJType _type = selection.getMessage().getType();
+  private FJClass _applyRuleTSelection_1(final RuleEnvironment G, final FJMemberSelection selection) throws RuleFailedException {
+    FJClass _type = selection.getMessage().getType();
     return _type;
   }
   
-  protected Result<FJType> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJCast cast) throws RuleFailedException {
+  protected Result<FJClass> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJCast cast) throws RuleFailedException {
     try {
     	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
-    	final Result<FJType> _result_ = applyRuleTCast(G, _subtrace_, cast);
+    	final Result<FJClass> _result_ = applyRuleTCast(G, _subtrace_, cast);
     	addToTrace(_trace_, new Provider<Object>() {
     		public Object get() {
     			return ruleName("TCast") + stringRepForEnv(G) + " |- " + stringRep(cast) + " : " + stringRep(_result_.getFirst());
@@ -542,44 +541,44 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	addAsSubtrace(_trace_, _subtrace_);
     	return _result_;
     } catch (Exception e_applyRuleTCast) {
-    	inferTypeThrowException(ruleName("TCast") + stringRepForEnv(G) + " |- " + stringRep(cast) + " : " + "FJType",
+    	inferTypeThrowException(ruleName("TCast") + stringRepForEnv(G) + " |- " + stringRep(cast) + " : " + "FJClass",
     		TCAST,
     		e_applyRuleTCast, cast, new ErrorInformation[] {new ErrorInformation(cast)});
     	return null;
     }
   }
   
-  protected Result<FJType> applyRuleTCast(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJCast cast) throws RuleFailedException {
-    /* G |- cast.expression : var FJType expType */
+  protected Result<FJClass> applyRuleTCast(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJCast cast) throws RuleFailedException {
+    /* G |- cast.expression : var FJClass expType */
     FJExpression _expression = cast.getExpression();
-    FJType expType = null;
-    Result<FJType> result = inferTypeInternal(G, _trace_, _expression);
-    checkAssignableTo(result.getFirst(), FJType.class);
-    expType = (FJType) result.getFirst();
+    FJClass expType = null;
+    Result<FJClass> result = inferTypeInternal(G, _trace_, _expression);
+    checkAssignableTo(result.getFirst(), FJClass.class);
+    expType = (FJClass) result.getFirst();
     
     /* G |- cast.type <: expType or G |- expType <: cast.type */
     {
       RuleFailedException previousFailure = null;
       try {
         /* G |- cast.type <: expType */
-        FJType _type = cast.getType();
+        FJClass _type = cast.getType();
         subtypeInternal(G, _trace_, _type, expType);
       } catch (Exception e) {
         previousFailure = extractRuleFailedException(e);
         /* G |- expType <: cast.type */
-        FJType _type_1 = cast.getType();
+        FJClass _type_1 = cast.getType();
         subtypeInternal(G, _trace_, expType, _type_1);
       }
     }
-    return new Result<FJType>(_applyRuleTCast_1(G, cast));
+    return new Result<FJClass>(_applyRuleTCast_1(G, cast));
   }
   
-  private FJType _applyRuleTCast_1(final RuleEnvironment G, final FJCast cast) throws RuleFailedException {
-    FJType _type = cast.getType();
+  private FJClass _applyRuleTCast_1(final RuleEnvironment G, final FJCast cast) throws RuleFailedException {
+    FJClass _type = cast.getType();
     return _type;
   }
   
-  protected Result<Boolean> subtypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJType left, final FJType right) throws RuleFailedException {
+  protected Result<Boolean> subtypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJClass left, final FJClass right) throws RuleFailedException {
     try {
     	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
     	final Result<Boolean> _result_ = applyRuleClassSubtyping(G, _subtrace_, left, right);
@@ -598,24 +597,22 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
   }
   
-  protected Result<Boolean> applyRuleClassSubtyping(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJType left, final FJType right) throws RuleFailedException {
-    /* left.classref == right.classref or superclasses(left.classref).contains(right.classref) */
+  protected Result<Boolean> applyRuleClassSubtyping(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJClass left, final FJClass right) throws RuleFailedException {
+    /* left == right or superclasses(left).contains(right) */
     {
       RuleFailedException previousFailure = null;
       try {
-        FJClass _classref = left.getClassref();
-        FJClass _classref_1 = right.getClassref();
-        boolean _equals = Objects.equal(_classref, _classref_1);
-        /* left.classref == right.classref */
+        boolean _equals = Objects.equal(left, right);
+        /* left == right */
         if (!_equals) {
-          sneakyThrowRuleFailedException("left.classref == right.classref");
+          sneakyThrowRuleFailedException("left == right");
         }
       } catch (Exception e) {
         previousFailure = extractRuleFailedException(e);
-        boolean _contains = this.superclassesInternal(_trace_, left.getClassref()).contains(right.getClassref());
-        /* superclasses(left.classref).contains(right.classref) */
+        boolean _contains = this.superclassesInternal(_trace_, left).contains(right);
+        /* superclasses(left).contains(right) */
         if (!_contains) {
-          sneakyThrowRuleFailedException("superclasses(left.classref).contains(right.classref)");
+          sneakyThrowRuleFailedException("superclasses(left).contains(right)");
         }
       }
     }
@@ -667,14 +664,14 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
     final Iterator<FJTypedElement> typedElementsIterator = typedElements.iterator();
     for (final FJExpression exp : expressions) {
-      /* G |- exp : var FJType expType */
-      FJType expType = null;
-      Result<FJType> result = inferTypeInternal(G, _trace_, exp);
-      checkAssignableTo(result.getFirst(), FJType.class);
-      expType = (FJType) result.getFirst();
+      /* G |- exp : var FJClass expType */
+      FJClass expType = null;
+      Result<FJClass> result = inferTypeInternal(G, _trace_, exp);
+      checkAssignableTo(result.getFirst(), FJClass.class);
+      expType = (FJClass) result.getFirst();
       
       /* G |- expType <: typedElementsIterator.next.type */
-      FJType _type = typedElementsIterator.next().getType();
+      FJClass _type = typedElementsIterator.next().getType();
       subtypeInternal(G, _trace_, expType, _type);
     }
     return new Result<Boolean>(true);

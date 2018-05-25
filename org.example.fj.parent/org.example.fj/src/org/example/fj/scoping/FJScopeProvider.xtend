@@ -26,8 +26,8 @@ class FJScopeProvider extends AbstractFJScopeProvider {
 				// TODO: environment for this
 				val receiverType = typeSystem.inferType(context.receiver).value
 				Scopes.scopeFor(
-					typeSystem.fields(receiverType.classref) +
-					typeSystem.methods(receiverType.classref)
+					typeSystem.fields(receiverType) +
+					typeSystem.methods(receiverType)
 				)
 			}
 			default: super.getScope(context, reference)
