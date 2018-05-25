@@ -3,6 +3,12 @@
  */
 package org.example.fj.scoping
 
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
+import org.example.fj.fj.FJMemberSelection
+import com.google.inject.Inject
+import org.example.fj.typing.FJTypeSystem
+import org.eclipse.xtext.scoping.Scopes
 
 /**
  * This class contains custom scoping description.
@@ -12,4 +18,20 @@ package org.example.fj.scoping
  */
 class FJScopeProvider extends AbstractFJScopeProvider {
 
+	@Inject FJTypeSystem typeSystem
+
+	override getScope(EObject context, EReference reference) {
+		switch (context) {
+			FJMemberSelection: {
+				// TODO: environment for this
+				val receiverType = typeSystem.inferType(context.receiver).value
+				Scopes.scopeFor(
+					typeSystem.fields(receiverType.classref) +
+					typeSystem.methods(receiverType.classref)
+				)
+			}
+			default: super.getScope(context, reference)
+		}
+	}
+	
 }
