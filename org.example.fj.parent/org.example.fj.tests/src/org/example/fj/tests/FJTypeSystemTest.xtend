@@ -5,6 +5,7 @@ package org.example.fj.tests
 
 import com.google.inject.Inject
 import java.util.List
+import org.eclipse.xsemantics.runtime.TraceUtils
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.testing.util.ParseHelper
@@ -25,6 +26,9 @@ class FJTypeSystemTest {
 
 	@Inject
 	FJTypeSystem typeSystem
+
+	@Inject
+	TraceUtils traceUtils
 	
 	@Test
 	def void testSuperclasses() {
@@ -73,6 +77,23 @@ class FJTypeSystemTest {
 		)
 	}
 
+	@Test
+	def void testSubtype() {
+		val result = parseHelper.parse('''
+			class Object {}
+			class A extends Object {
+				public Object Amethod() { return new Object(); }
+			}
+			class B extends A {
+				public Object Bmethod() { return new Object(); }
+			}
+		''')
+		val classes = result.classes
+		assertSubtype(classes.get(0), classes.get(1), false)
+		assertSubtype(classes.get(1), classes.get(0), true)
+		assertSubtype(classes.get(2), classes.get(1), true)
+	}
+
 	def private assertClasses(List<FJClass> classes, CharSequence expectedRepr) {
 		assertEquals(
 			expectedRepr.toString,
@@ -85,5 +106,16 @@ class FJTypeSystemTest {
 			expectedRepr.toString,
 			members.map[name].join(", ")
 		)
+	}
+
+	def private assertSubtype(FJClass left, FJClass right, boolean expected) {
+		val subtype = typeSystem.subtype(left, right)
+		if (subtype.failed && expected) {
+			fail(traceUtils.failureTraceAsString(subtype.ruleFailedException))
+		} else if (expected) {
+			assertEquals(expected,
+				subtype.value
+			)
+		}
 	}
 }

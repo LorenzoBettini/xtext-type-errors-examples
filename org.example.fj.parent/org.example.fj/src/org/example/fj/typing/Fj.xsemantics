@@ -103,14 +103,14 @@ from {
 // note that super as an expression cannot be typed
 
 rule ClassSubtyping
-	derives G |- FJClass left <: FJClass right
+	G |- FJClass left <: FJClass right
 from {
 	left == right
 	or
 	superclasses(left).contains(right)
 }
 
-rule SubtypeSequence derives
+rule SubtypeSequence
 	G |- List<FJExpression> expressions << List<FJTypedElement> typedElements
 from {
 	expressions.size == typedElements.size
