@@ -20,6 +20,7 @@ import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.util.PolymorphicDispatcher;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
+import org.example.fj.fj.FJAccessLevel;
 import org.example.fj.fj.FJCast;
 import org.example.fj.fj.FJClass;
 import org.example.fj.fj.FJExpression;
@@ -278,6 +279,75 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
         EObject source_1 = sel;
         EStructuralFeature feature_1 = FjPackage.Literals.FJ_MEMBER_SELECTION__MEMBER;
         throwForExplicitFail(error_1, new ErrorInformation(source_1, feature_1));
+      }
+    }
+    return new Result<Boolean>(true);
+  }
+  
+  public Result<Boolean> checkAccessibility(final FJMemberSelection sel) {
+    return checkAccessibility(null, sel);
+  }
+  
+  public Result<Boolean> checkAccessibility(final RuleApplicationTrace _trace_, final FJMemberSelection sel) {
+    try {
+    	return checkAccessibilityInternal(_trace_, sel);
+    } catch (Exception _e_CheckAccessibility) {
+    	return resultForFailure(_e_CheckAccessibility);
+    }
+  }
+  
+  protected Result<Boolean> checkAccessibilityInternal(final RuleApplicationTrace _trace_, final FJMemberSelection sel) throws RuleFailedException {
+    final FJMember member = sel.getMember();
+    final FJClass receiverClass = EcoreUtil2.<FJClass>getContainerOfType(sel.getReceiver(), FJClass.class);
+    final FJClass memberClass = EcoreUtil2.<FJClass>getContainerOfType(member, FJClass.class);
+    /* member.access == FJAccessLevel.PUBLIC or receiverClass === memberClass or { empty |- receiverClass <: memberClass member.access != FJAccessLevel.PRIVATE } or fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+    {
+      RuleFailedException previousFailure = null;
+      try {
+        FJAccessLevel _access = member.getAccess();
+        boolean _equals = Objects.equal(_access, FJAccessLevel.PUBLIC);
+        /* member.access == FJAccessLevel.PUBLIC */
+        if (!_equals) {
+          sneakyThrowRuleFailedException("member.access == FJAccessLevel.PUBLIC");
+        }
+      } catch (Exception e) {
+        previousFailure = extractRuleFailedException(e);
+        /* receiverClass === memberClass or { empty |- receiverClass <: memberClass member.access != FJAccessLevel.PRIVATE } or fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+        {
+          try {
+            /* receiverClass === memberClass */
+            if (!(receiverClass == memberClass)) {
+              sneakyThrowRuleFailedException("receiverClass === memberClass");
+            }
+          } catch (Exception e_1) {
+            previousFailure = extractRuleFailedException(e_1);
+            /* { empty |- receiverClass <: memberClass member.access != FJAccessLevel.PRIVATE } or fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+            {
+              try {
+                /* empty |- receiverClass <: memberClass */
+                subtypeInternal(emptyEnvironment(), _trace_, receiverClass, memberClass);
+                FJAccessLevel _access_1 = member.getAccess();
+                /* member.access != FJAccessLevel.PRIVATE */
+                if (!(!Objects.equal(_access_1, FJAccessLevel.PRIVATE))) {
+                  sneakyThrowRuleFailedException("member.access != FJAccessLevel.PRIVATE");
+                }
+              } catch (Exception e_2) {
+                previousFailure = extractRuleFailedException(e_2);
+                /* fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+                FJAccessLevel _access_2 = member.getAccess();
+                String _plus = ("The " + _access_2);
+                String _plus_1 = (_plus + " member ");
+                String _name = member.getName();
+                String _plus_2 = (_plus_1 + _name);
+                String _plus_3 = (_plus_2 + " is not accessible here");
+                String error = _plus_3;
+                EObject source = sel;
+                EStructuralFeature feature = FjPackage.Literals.FJ_MEMBER_SELECTION__MEMBER;
+                throwForExplicitFail(error, new ErrorInformation(source, feature));
+              }
+            }
+          }
+        }
       }
     }
     return new Result<Boolean>(true);

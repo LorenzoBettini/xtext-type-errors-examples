@@ -36,6 +36,13 @@ public class FJTypeSystemValidator extends AbstractFJValidator {
   }
   
   @Check
+  public void checkAccessibility(final FJMemberSelection sel) {
+    errorGenerator.generateErrors(this,
+    	getXsemanticsSystem().checkAccessibility(sel),
+    		sel);
+  }
+  
+  @Check
   public void checkMain(final FJProgram program) {
     errorGenerator.generateErrors(this,
     	getXsemanticsSystem().checkMain(program),

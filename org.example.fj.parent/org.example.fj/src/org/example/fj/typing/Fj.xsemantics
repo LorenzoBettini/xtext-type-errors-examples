@@ -16,6 +16,8 @@ import org.example.fj.validation.AbstractFJValidator
 import org.example.fj.fj.FJProgram
 
 import static org.example.fj.fj.FjPackage.Literals.*
+import static org.eclipse.xtext.EcoreUtil2.*
+import org.example.fj.fj.FJAccessLevel
 
 system org.example.fj.typing.FJTypeSystem
 
@@ -162,6 +164,27 @@ from {
 			source sel
 			feature FJ_MEMBER_SELECTION__MEMBER
 	}
+}
+
+checkrule CheckAccessibility for
+	FJMemberSelection sel
+from {
+	val member = sel.member
+	val receiverClass = getContainerOfType(sel.receiver, FJClass)
+	val memberClass = getContainerOfType(member, FJClass)
+	
+	member.access == FJAccessLevel.PUBLIC
+	or
+	receiverClass === memberClass
+	or {
+		empty |- receiverClass <: memberClass
+		member.access != FJAccessLevel.PRIVATE
+	}
+	or fail
+		error "The " + member.access + " member "
+			+ member.name + " is not accessible here"
+		source sel
+		feature FJ_MEMBER_SELECTION__MEMBER
 }
 
 checkrule CheckMain for

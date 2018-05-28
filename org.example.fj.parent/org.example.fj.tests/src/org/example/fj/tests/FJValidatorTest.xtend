@@ -101,4 +101,36 @@ class FJValidatorTest {
 			"Field selection on a method"
 		)
 	}
+
+	@Test
+	def void testInvalidAccess() {
+		val result = '''
+			class Object {}
+			class A {
+				private Object privF;
+				protected Object protF;
+				public Object publF;
+			}
+			class B extends A {
+				public Object m() {
+					return this.privF;
+				}
+				public Object n() {
+					return this.protF;
+				}
+			}
+			
+			new B(new Object(), new Object(), new Object()).protF
+		'''.parse
+		result.assertError(
+			FJ_MEMBER_SELECTION,
+			null,
+			"The private member privF is not accessible here"
+		)
+		result.assertError(
+			FJ_MEMBER_SELECTION,
+			null,
+			"The protected member protF is not accessible here"
+		)
+	}
 }
