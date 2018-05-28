@@ -15,6 +15,8 @@ import org.example.fj.fj.FjPackage
 import org.example.fj.validation.AbstractFJValidator
 import org.example.fj.fj.FJProgram
 
+import static org.example.fj.fj.FjPackage.Literals.*
+
 system org.example.fj.typing.FJTypeSystem
 
 validatorExtends AbstractFJValidator
@@ -142,6 +144,24 @@ from {
 		error "Type mismatch: cannot convert from " +
 			bodyType.name + " to " + method.type.name
 		source method.expression
+}
+
+checkrule CheckMemberSelection for
+	FJMemberSelection sel
+from {
+	val member = sel.member
+	
+	if (member instanceof FJField && sel.methodinvocation) {
+		fail
+			error "Method invocation on a field"
+			source sel
+			feature FJ_MEMBER_SELECTION__MEMBER
+	} else if (member instanceof FJMethod && !sel.methodinvocation) {
+		fail
+			error "Field selection on a method"
+			source sel
+			feature FJ_MEMBER_SELECTION__MEMBER
+	}
 }
 
 checkrule CheckMain for

@@ -61,4 +61,44 @@ class FJValidatorTest {
 			"Type mismatch: cannot convert from A to B"
 		)
 	}
+
+	@Test
+	def void testNotValidMethodInvocation() {
+		val result = '''
+			class Object {}
+			class A {
+				public Object f;
+				public Object m() {
+					return new Object();
+				}
+			}
+			
+			new A(new Object()).f()
+		'''.parse
+		result.assertError(
+			FJ_MEMBER_SELECTION,
+			null,
+			"Method invocation on a field"
+		)
+	}
+
+	@Test
+	def void testNotValidFieldSelection() {
+		val result = '''
+			class Object {}
+			class A {
+				public Object f;
+				public Object m() {
+					return new Object();
+				}
+			}
+			
+			new A(new Object()).m
+		'''.parse
+		result.assertError(
+			FJ_MEMBER_SELECTION,
+			null,
+			"Field selection on a method"
+		)
+	}
 }

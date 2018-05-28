@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.xsemantics.runtime.ErrorInformation;
 import org.eclipse.xsemantics.runtime.Result;
 import org.eclipse.xsemantics.runtime.RuleApplicationTrace;
@@ -245,6 +246,38 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
         FJExpression _expression_1 = method.getExpression();
         EObject source = _expression_1;
         throwForExplicitFail(error, new ErrorInformation(source, null));
+      }
+    }
+    return new Result<Boolean>(true);
+  }
+  
+  public Result<Boolean> checkMemberSelection(final FJMemberSelection sel) {
+    return checkMemberSelection(null, sel);
+  }
+  
+  public Result<Boolean> checkMemberSelection(final RuleApplicationTrace _trace_, final FJMemberSelection sel) {
+    try {
+    	return checkMemberSelectionInternal(_trace_, sel);
+    } catch (Exception _e_CheckMemberSelection) {
+    	return resultForFailure(_e_CheckMemberSelection);
+    }
+  }
+  
+  protected Result<Boolean> checkMemberSelectionInternal(final RuleApplicationTrace _trace_, final FJMemberSelection sel) throws RuleFailedException {
+    final FJMember member = sel.getMember();
+    if (((member instanceof FJField) && sel.isMethodinvocation())) {
+      /* fail error "Method invocation on a field" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+      String error = "Method invocation on a field";
+      EObject source = sel;
+      EStructuralFeature feature = FjPackage.Literals.FJ_MEMBER_SELECTION__MEMBER;
+      throwForExplicitFail(error, new ErrorInformation(source, feature));
+    } else {
+      if (((member instanceof FJMethod) && (!sel.isMethodinvocation()))) {
+        /* fail error "Field selection on a method" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+        String error_1 = "Field selection on a method";
+        EObject source_1 = sel;
+        EStructuralFeature feature_1 = FjPackage.Literals.FJ_MEMBER_SELECTION__MEMBER;
+        throwForExplicitFail(error_1, new ErrorInformation(source_1, feature_1));
       }
     }
     return new Result<Boolean>(true);
