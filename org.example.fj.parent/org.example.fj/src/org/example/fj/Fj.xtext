@@ -41,7 +41,9 @@ FJExpression:
 	=>(
 		{FJMemberSelection.receiver=current} '.' 
 		message=[FJMember]
-		('(' (args+=FJExpression (',' args+=FJExpression)*)? ')')?
+		(methodinvocation?='('
+			(args+=FJExpression (',' args+=FJExpression)*)? ')'
+		)?
 	)*
 ;
 
