@@ -39,4 +39,26 @@ class FJScopeProviderTest {
 		'''.parse
 		result.assertNoErrors
 	}
+
+	@Test
+	def void testScopeForMembersOnThis() {
+		val result = '''
+			class Object {
+				
+			}
+			
+			class Pair extends Object {
+				private Object fst;
+				private Object snd;
+				
+				public Object getFst() {
+					return this.fst;
+				}
+				public Object getSnd() {
+					return (Object) this.snd;
+				}
+			}
+		'''.parse
+		result.assertNoErrors
+	}
 }

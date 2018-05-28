@@ -9,6 +9,10 @@ import org.example.fj.fj.FJMemberSelection
 import com.google.inject.Inject
 import org.example.fj.typing.FJTypeSystem
 import org.eclipse.xtext.scoping.Scopes
+import org.eclipse.xsemantics.runtime.RuleEnvironment
+import org.eclipse.xtext.EcoreUtil2
+import org.example.fj.fj.FJClass
+import org.eclipse.xtext.scoping.IScope
 
 /**
  * This class contains custom scoping description.
@@ -23,15 +27,27 @@ class FJScopeProvider extends AbstractFJScopeProvider {
 	override getScope(EObject context, EReference reference) {
 		switch (context) {
 			FJMemberSelection: {
-				// TODO: environment for this
-				val receiverType = typeSystem.inferType(context.receiver).value
-				Scopes.scopeFor(
-					typeSystem.fields(receiverType) +
-					typeSystem.methods(receiverType)
-				)
+				val receiverType =
+					typeSystem.inferType
+						(environmentForThis(context), context.receiver).value
+				if (receiverType !== null)
+					Scopes.scopeFor(
+						typeSystem.fields(receiverType) +
+						typeSystem.methods(receiverType)
+					)
+				else
+					IScope.NULLSCOPE
 			}
 			default: super.getScope(context, reference)
 		}
 	}
-	
+
+	def private environmentForThis(EObject context) {
+		val env = new RuleEnvironment
+		val containingClass = EcoreUtil2.getContainerOfType(context,
+				FJClass)
+		if (containingClass !== null)
+			env.add("this", containingClass)
+		return env
+	}
 }
