@@ -58,6 +58,8 @@ class FJScopeProviderTest {
 					return (Object) this.snd;
 				}
 			}
+			
+			new Pair(new Object(), new Object()).getFst()
 		'''.parse
 		result.assertNoErrors
 	}
