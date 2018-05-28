@@ -142,7 +142,7 @@ from {
 	or
 	fail
 		error "Type mismatch: cannot convert from " +
-			bodyType.name + " to " + method.type.name
+			stringRep(bodyType) + " to " + stringRep(method.type)
 		source method.expression
 }
 

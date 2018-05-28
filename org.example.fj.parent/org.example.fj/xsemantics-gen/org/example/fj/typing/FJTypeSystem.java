@@ -227,7 +227,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     checkAssignableTo(result.getFirst(), FJClass.class);
     bodyType = (FJClass) result.getFirst();
     
-    /* empty |- bodyType <: method.type or fail error "Type mismatch: cannot convert from " + bodyType.name + " to " + method.type.name source method.expression */
+    /* empty |- bodyType <: method.type or fail error "Type mismatch: cannot convert from " + stringRep(bodyType) + " to " + stringRep(method.type) source method.expression */
     {
       RuleFailedException previousFailure = null;
       try {
@@ -236,12 +236,12 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
         subtypeInternal(emptyEnvironment(), _trace_, bodyType, _type);
       } catch (Exception e) {
         previousFailure = extractRuleFailedException(e);
-        /* fail error "Type mismatch: cannot convert from " + bodyType.name + " to " + method.type.name source method.expression */
-        String _name = bodyType.getName();
-        String _plus = ("Type mismatch: cannot convert from " + _name);
+        /* fail error "Type mismatch: cannot convert from " + stringRep(bodyType) + " to " + stringRep(method.type) source method.expression */
+        String _stringRep = this.stringRep(bodyType);
+        String _plus = ("Type mismatch: cannot convert from " + _stringRep);
         String _plus_1 = (_plus + " to ");
-        String _name_1 = method.getType().getName();
-        String _plus_2 = (_plus_1 + _name_1);
+        String _stringRep_1 = this.stringRep(method.getType());
+        String _plus_2 = (_plus_1 + _stringRep_1);
         String error = _plus_2;
         FJExpression _expression_1 = method.getExpression();
         EObject source = _expression_1;

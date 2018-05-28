@@ -3,9 +3,14 @@
  */
 package org.example.fj
 
+import org.eclipse.xsemantics.runtime.StringRepresentation
+import org.example.fj.typing.FJStringRepresentation
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class FJRuntimeModule extends AbstractFJRuntimeModule {
+	def Class<? extends StringRepresentation> bindStringRepresentation() {
+		return FJStringRepresentation
+	}
 }

@@ -30,12 +30,25 @@ class FJScopeProvider extends AbstractFJScopeProvider {
 				val receiverType =
 					typeSystem.inferType
 						(environmentForThis(context), context.receiver).value
-				if (receiverType !== null)
+				if (receiverType !== null) {
 					Scopes.scopeFor(
 						typeSystem.fields(receiverType) +
 						typeSystem.methods(receiverType)
 					)
-				else
+					// DON'T DO THE FOLLOWING: that's too strict
+					// leads to less useful errors and breaks other
+					// parts of the type system
+					/*
+					if (context.methodinvocation)
+						Scopes.scopeFor(
+							typeSystem.methods(receiverType)
+						)
+					else
+						Scopes.scopeFor(
+							typeSystem.fields(receiverType)
+						)
+					*/
+				} else
 					IScope.NULLSCOPE
 			}
 			default: super.getScope(context, reference)
