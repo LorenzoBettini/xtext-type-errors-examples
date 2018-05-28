@@ -79,11 +79,11 @@ axiom TParamRef
 	G |- FJParamRef paramref : paramref.parameter.type
 
 rule TSelection
-	G |- FJMemberSelection selection : selection.message.type
+	G |- FJMemberSelection selection : selection.member.type
 from {
 	G |- selection.receiver : var FJClass receiverType
 	// check message if it's a method call
-	val message = selection.message
+	val message = selection.member
 	switch (message) {
 		FJMethod: { 
 			G |- selection.args << message.params

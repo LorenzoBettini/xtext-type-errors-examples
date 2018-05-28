@@ -595,7 +595,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     checkAssignableTo(result.getFirst(), FJClass.class);
     receiverType = (FJClass) result.getFirst();
     
-    final FJMember message = selection.getMessage();
+    final FJMember message = selection.getMember();
     boolean _matched = false;
     if (message instanceof FJMethod) {
       _matched=true;
@@ -608,7 +608,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   private FJClass _applyRuleTSelection_1(final RuleEnvironment G, final FJMemberSelection selection) throws RuleFailedException {
-    FJClass _type = selection.getMessage().getType();
+    FJClass _type = selection.getMember().getType();
     return _type;
   }
   

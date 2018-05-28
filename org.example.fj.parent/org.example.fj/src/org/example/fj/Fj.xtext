@@ -40,7 +40,7 @@ FJExpression:
 	FJTerminalExpression 
 	=>(
 		{FJMemberSelection.receiver=current} '.' 
-		message=[FJMember]
+		member=[FJMember]
 		(methodinvocation?='('
 			(args+=FJExpression (',' args+=FJExpression)*)? ')'
 		)?
