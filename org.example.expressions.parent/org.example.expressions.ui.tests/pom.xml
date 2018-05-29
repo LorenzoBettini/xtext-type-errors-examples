@@ -22,6 +22,10 @@
 				<configuration>
 					<failIfNoTests>false</failIfNoTests>
 					<useUIHarness>true</useUIHarness>
+					<environmentVariables>
+                        <!-- Avoid (SWT:9446): GLib-CRITICAL warnings in Jenkins -->
+						<SWT_GTK3>0</SWT_GTK3>
+					</environmentVariables>
 				</configuration>
 			</plugin>
 			<plugin>
