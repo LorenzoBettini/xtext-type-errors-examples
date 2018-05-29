@@ -8,7 +8,7 @@ node {
       mvnHome = tool 'M3'
    }
    stage('Build') {
-      wrap([$class: 'Xvfb', autoDisplayName: true]) {
+      wrap([$class: 'Xvfb', autoDisplayName: true, debug: false]) {
         // Run the maven build
         // returnStatus: true here will ensure the build stays yellow
         // when test cases are failing
