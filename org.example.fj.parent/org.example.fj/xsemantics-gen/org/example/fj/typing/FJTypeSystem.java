@@ -44,6 +44,8 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   
   public final static String METHODS = "org.example.fj.typing.Methods";
   
+  public final static String ISACCESSIBLE = "org.example.fj.typing.IsAccessible";
+  
   public final static String TTHIS = "org.example.fj.typing.TThis";
   
   public final static String TNEW = "org.example.fj.typing.TNew";
@@ -63,6 +65,8 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   private PolymorphicDispatcher<List<FJField>> fieldsDispatcher;
   
   private PolymorphicDispatcher<List<FJMethod>> methodsDispatcher;
+  
+  private PolymorphicDispatcher<Boolean> isAccessibleDispatcher;
   
   private PolymorphicDispatcher<Result<FJClass>> inferTypeDispatcher;
   
@@ -87,6 +91,8 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	"fieldsImpl", 2);
     methodsDispatcher = buildPolymorphicDispatcher(
     	"methodsImpl", 2);
+    isAccessibleDispatcher = buildPolymorphicDispatcher(
+    	"isAccessibleImpl", 3);
   }
   
   public List<FJClass> superclasses(final FJClass cl) throws RuleFailedException {
@@ -122,6 +128,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	return methodsInternal(_trace_, cl);
     } catch (Exception _e_methods) {
     	throw extractRuleFailedException(_e_methods);
+    }
+  }
+  
+  public Boolean isAccessible(final FJMember member, final EObject context) throws RuleFailedException {
+    return isAccessible(null, member, context);
+  }
+  
+  public Boolean isAccessible(final RuleApplicationTrace _trace_, final FJMember member, final EObject context) throws RuleFailedException {
+    try {
+    	return isAccessibleInternal(_trace_, member, context);
+    } catch (Exception _e_isAccessible) {
+    	throw extractRuleFailedException(_e_isAccessible);
     }
   }
   
@@ -298,56 +316,28 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   
   protected Result<Boolean> checkAccessibilityInternal(final RuleApplicationTrace _trace_, final FJMemberSelection sel) throws RuleFailedException {
     final FJMember member = sel.getMember();
-    final FJClass receiverClass = EcoreUtil2.<FJClass>getContainerOfType(sel.getReceiver(), FJClass.class);
-    final FJClass memberClass = EcoreUtil2.<FJClass>getContainerOfType(member, FJClass.class);
-    /* member.access == FJAccessLevel.PUBLIC or receiverClass === memberClass or { empty |- receiverClass <: memberClass member.access != FJAccessLevel.PRIVATE } or fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+    /* isAccessible(member, sel.receiver) or fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
     {
       RuleFailedException previousFailure = null;
       try {
-        FJAccessLevel _access = member.getAccess();
-        boolean _equals = Objects.equal(_access, FJAccessLevel.PUBLIC);
-        /* member.access == FJAccessLevel.PUBLIC */
-        if (!_equals) {
-          sneakyThrowRuleFailedException("member.access == FJAccessLevel.PUBLIC");
+        Boolean _isAccessible = this.isAccessibleInternal(_trace_, member, sel.getReceiver());
+        /* isAccessible(member, sel.receiver) */
+        if (!_isAccessible) {
+          sneakyThrowRuleFailedException("isAccessible(member, sel.receiver)");
         }
       } catch (Exception e) {
         previousFailure = extractRuleFailedException(e);
-        /* receiverClass === memberClass or { empty |- receiverClass <: memberClass member.access != FJAccessLevel.PRIVATE } or fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
-        {
-          try {
-            /* receiverClass === memberClass */
-            if (!(receiverClass == memberClass)) {
-              sneakyThrowRuleFailedException("receiverClass === memberClass");
-            }
-          } catch (Exception e_1) {
-            previousFailure = extractRuleFailedException(e_1);
-            /* { empty |- receiverClass <: memberClass member.access != FJAccessLevel.PRIVATE } or fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
-            {
-              try {
-                /* empty |- receiverClass <: memberClass */
-                subtypeInternal(emptyEnvironment(), _trace_, receiverClass, memberClass);
-                FJAccessLevel _access_1 = member.getAccess();
-                /* member.access != FJAccessLevel.PRIVATE */
-                if (!(!Objects.equal(_access_1, FJAccessLevel.PRIVATE))) {
-                  sneakyThrowRuleFailedException("member.access != FJAccessLevel.PRIVATE");
-                }
-              } catch (Exception e_2) {
-                previousFailure = extractRuleFailedException(e_2);
-                /* fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
-                FJAccessLevel _access_2 = member.getAccess();
-                String _plus = ("The " + _access_2);
-                String _plus_1 = (_plus + " member ");
-                String _name = member.getName();
-                String _plus_2 = (_plus_1 + _name);
-                String _plus_3 = (_plus_2 + " is not accessible here");
-                String error = _plus_3;
-                EObject source = sel;
-                EStructuralFeature feature = FjPackage.Literals.FJ_MEMBER_SELECTION__MEMBER;
-                throwForExplicitFail(error, new ErrorInformation(source, feature));
-              }
-            }
-          }
-        }
+        /* fail error "The " + member.access + " member " + member.name + " is not accessible here" source sel feature FJ_MEMBER_SELECTION__MEMBER */
+        FJAccessLevel _access = member.getAccess();
+        String _plus = ("The " + _access);
+        String _plus_1 = (_plus + " member ");
+        String _name = member.getName();
+        String _plus_2 = (_plus_1 + _name);
+        String _plus_3 = (_plus_2 + " is not accessible here");
+        String error = _plus_3;
+        EObject source = sel;
+        EStructuralFeature feature = FjPackage.Literals.FJ_MEMBER_SELECTION__MEMBER;
+        throwForExplicitFail(error, new ErrorInformation(source, feature));
       }
     }
     return new Result<Boolean>(true);
@@ -429,6 +419,19 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected void methodsThrowException(final String _error, final String _issue, final Exception _ex, final FJClass cl, final ErrorInformation[] _errorInformations) throws RuleFailedException {
+    throwRuleFailedException(_error, _issue, _ex, _errorInformations);
+  }
+  
+  protected Boolean isAccessibleInternal(final RuleApplicationTrace _trace_, final FJMember member, final EObject context) {
+    try {
+    	checkParamsNotNull(member, context);
+    	return isAccessibleDispatcher.invoke(_trace_, member, context);
+    } catch (Exception _e_isAccessible) {
+    	return false;
+    }
+  }
+  
+  protected void isAccessibleThrowException(final String _error, final String _issue, final Exception _ex, final FJMember member, final EObject context, final ErrorInformation[] _errorInformations) throws RuleFailedException {
     throwRuleFailedException(_error, _issue, _ex, _errorInformations);
   }
   
@@ -579,6 +582,49 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
       _xblockexpression = (methods);
     }
     return _xblockexpression;
+  }
+  
+  protected Boolean isAccessibleImpl(final RuleApplicationTrace _trace_, final FJMember member, final EObject context) throws RuleFailedException {
+    try {
+    	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
+    	final Boolean _result_ = applyAuxFunIsAccessible(_subtrace_, member, context);
+    	addToTrace(_trace_, new Provider<Object>() {
+    		public Object get() {
+    			return auxFunName("isAccessible") + "(" + stringRep(member) + ", " + stringRep(context)+ ")" + " = " + stringRep(_result_);
+    		}
+    	});
+    	addAsSubtrace(_trace_, _subtrace_);
+    	return _result_;
+    } catch (Exception e_applyAuxFunIsAccessible) {
+    	isAccessibleThrowException(auxFunName("isAccessible") + "(" + stringRep(member) + ", " + stringRep(context)+ ")",
+    		ISACCESSIBLE,
+    		e_applyAuxFunIsAccessible, member, context, new ErrorInformation[] {new ErrorInformation(member), new ErrorInformation(context)});
+    	return false;
+    }
+  }
+  
+  protected Boolean applyAuxFunIsAccessible(final RuleApplicationTrace _trace_, final FJMember member, final EObject context) throws RuleFailedException {
+    final FJClass receiverClass = EcoreUtil2.<FJClass>getContainerOfType(context, FJClass.class);
+    final FJClass memberClass = EcoreUtil2.<FJClass>getContainerOfType(member, FJClass.class);
+    boolean _or = false;
+    if ((Objects.equal(member.getAccess(), FJAccessLevel.PUBLIC) || 
+      (receiverClass == memberClass))) {
+      _or = true;
+    } else {
+      boolean _xblockexpression = false;
+      {
+        /* empty |- receiverClass <: memberClass */
+        subtypeInternal(emptyEnvironment(), _trace_, receiverClass, memberClass);
+        FJAccessLevel _access = member.getAccess();
+        /* member.access != FJAccessLevel.PRIVATE */
+        if (!(!Objects.equal(_access, FJAccessLevel.PRIVATE))) {
+          sneakyThrowRuleFailedException("member.access != FJAccessLevel.PRIVATE");
+        }
+        _xblockexpression = ((!Objects.equal(_access, FJAccessLevel.PRIVATE)));
+      }
+      _or = _xblockexpression;
+    }
+    return Boolean.valueOf(_or);
   }
   
   protected Result<FJClass> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJThis _this) throws RuleFailedException {

@@ -3,10 +3,29 @@
  */
 package org.example.fj.ui.contentassist
 
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.Assignment
+import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
+import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
+import com.google.inject.Inject
+import org.example.fj.typing.FJTypeSystem
+import org.eclipse.xtext.CrossReference
+import org.example.fj.fj.FJMember
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
  * on how to customize the content assistant.
  */
 class FJProposalProvider extends AbstractFJProposalProvider {
+
+	@Inject FJTypeSystem typeSystem
+
+	override completeFJExpression_Member(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		lookupCrossReference(assignment.getTerminal() as CrossReference, context, acceptor) [
+			e |
+			val obj = e.EObjectOrProxy
+			typeSystem.isAccessible(obj as FJMember, model)
+		]
+	}
+	
 }
