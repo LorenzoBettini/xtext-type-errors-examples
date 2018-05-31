@@ -84,7 +84,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     subtypeDispatcher = buildPolymorphicDispatcher1(
     	"subtypeImpl", 4, "|-", "<:");
     subtypesequenceDispatcher = buildPolymorphicDispatcher1(
-    	"subtypesequenceImpl", 4, "|-", "<<");
+    	"subtypesequenceImpl", 5, "|-", "~>", "<<");
     superclassesDispatcher = buildPolymorphicDispatcher(
     	"superclassesImpl", 2);
     fieldsDispatcher = buildPolymorphicDispatcher(
@@ -192,37 +192,152 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     }
   }
   
-  public Result<Boolean> subtypesequence(final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
-    return subtypesequence(new RuleEnvironment(), null, expressions, elements);
+  public Result<Boolean> subtypesequence(final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
+    return subtypesequence(new RuleEnvironment(), null, owner, expressions, elements);
   }
   
-  public Result<Boolean> subtypesequence(final RuleEnvironment _environment_, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
-    return subtypesequence(_environment_, null, expressions, elements);
+  public Result<Boolean> subtypesequence(final RuleEnvironment _environment_, final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
+    return subtypesequence(_environment_, null, owner, expressions, elements);
   }
   
-  public Result<Boolean> subtypesequence(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
+  public Result<Boolean> subtypesequence(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
     try {
-    	return subtypesequenceInternal(_environment_, _trace_, expressions, elements);
+    	return subtypesequenceInternal(_environment_, _trace_, owner, expressions, elements);
     } catch (Exception _e_subtypesequence) {
     	return resultForFailure(_e_subtypesequence);
     }
   }
   
-  public Boolean subtypesequenceSucceeded(final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
-    return subtypesequenceSucceeded(new RuleEnvironment(), null, expressions, elements);
+  public Boolean subtypesequenceSucceeded(final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
+    return subtypesequenceSucceeded(new RuleEnvironment(), null, owner, expressions, elements);
   }
   
-  public Boolean subtypesequenceSucceeded(final RuleEnvironment _environment_, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
-    return subtypesequenceSucceeded(_environment_, null, expressions, elements);
+  public Boolean subtypesequenceSucceeded(final RuleEnvironment _environment_, final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
+    return subtypesequenceSucceeded(_environment_, null, owner, expressions, elements);
   }
   
-  public Boolean subtypesequenceSucceeded(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
+  public Boolean subtypesequenceSucceeded(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
     try {
-    	subtypesequenceInternal(_environment_, _trace_, expressions, elements);
+    	subtypesequenceInternal(_environment_, _trace_, owner, expressions, elements);
     	return true;
     } catch (Exception _e_subtypesequence) {
     	return false;
     }
+  }
+  
+  public Result<Boolean> checkNew(final FJNew newExp) {
+    return checkNew(null, newExp);
+  }
+  
+  public Result<Boolean> checkNew(final RuleApplicationTrace _trace_, final FJNew newExp) {
+    try {
+    	return checkNewInternal(_trace_, newExp);
+    } catch (Exception _e_CheckNew) {
+    	return resultForFailure(_e_CheckNew);
+    }
+  }
+  
+  protected Result<Boolean> checkNewInternal(final RuleApplicationTrace _trace_, final FJNew newExp) throws RuleFailedException {
+    List<FJField> fields = this.fieldsInternal(_trace_, newExp.getType());
+    /* 'this' <- getContainerOfType(newExp, FJClass) |- newExp ~> newExp.args << fields */
+    EList<FJExpression> _args = newExp.getArgs();
+    FJClass _containerOfType = EcoreUtil2.<FJClass>getContainerOfType(newExp, FJClass.class);
+    subtypesequenceInternal(environmentEntry("this", _containerOfType), _trace_, newExp, _args, fields);
+    return new Result<Boolean>(true);
+  }
+  
+  public Result<Boolean> checkSelection(final FJMemberSelection selection) {
+    return checkSelection(null, selection);
+  }
+  
+  public Result<Boolean> checkSelection(final RuleApplicationTrace _trace_, final FJMemberSelection selection) {
+    try {
+    	return checkSelectionInternal(_trace_, selection);
+    } catch (Exception _e_CheckSelection) {
+    	return resultForFailure(_e_CheckSelection);
+    }
+  }
+  
+  protected Result<Boolean> checkSelectionInternal(final RuleApplicationTrace _trace_, final FJMemberSelection selection) throws RuleFailedException {
+    final FJMember member = selection.getMember();
+    boolean _matched = false;
+    if (member instanceof FJMethod) {
+      _matched=true;
+      /* 'this' <- member.eContainer |- selection ~> selection.args << member.params or fail error previousFailure.previous.message source selection feature FJ_MEMBER_SELECTION__MEMBER */
+      {
+        RuleFailedException previousFailure = null;
+        try {
+          /* 'this' <- member.eContainer |- selection ~> selection.args << member.params */
+          EList<FJExpression> _args = selection.getArgs();
+          EList<FJParameter> _params = ((FJMethod)member).getParams();
+          EObject _eContainer = ((FJMethod)member).eContainer();
+          subtypesequenceInternal(environmentEntry("this", _eContainer), _trace_, selection, _args, _params);
+        } catch (Exception e) {
+          previousFailure = extractRuleFailedException(e);
+          /* fail error previousFailure.previous.message source selection feature FJ_MEMBER_SELECTION__MEMBER */
+          String _message = previousFailure.getPrevious().getMessage();
+          String error = _message;
+          EObject source = selection;
+          EStructuralFeature feature = FjPackage.Literals.FJ_MEMBER_SELECTION__MEMBER;
+          throwForExplicitFail(error, new ErrorInformation(source, feature));
+        }
+      }
+    }
+    return new Result<Boolean>(true);
+  }
+  
+  public Result<Boolean> checkCast(final FJCast cast) {
+    return checkCast(null, cast);
+  }
+  
+  public Result<Boolean> checkCast(final RuleApplicationTrace _trace_, final FJCast cast) {
+    try {
+    	return checkCastInternal(_trace_, cast);
+    } catch (Exception _e_CheckCast) {
+    	return resultForFailure(_e_CheckCast);
+    }
+  }
+  
+  protected Result<Boolean> checkCastInternal(final RuleApplicationTrace _trace_, final FJCast cast) throws RuleFailedException {
+    /* 'this' <- getContainerOfType(cast, FJClass) |- cast.expression : var FJClass expType */
+    FJExpression _expression = cast.getExpression();
+    FJClass expType = null;
+    FJClass _containerOfType = EcoreUtil2.<FJClass>getContainerOfType(cast, FJClass.class);
+    Result<FJClass> result = inferTypeInternal(environmentEntry("this", _containerOfType), _trace_, _expression);
+    checkAssignableTo(result.getFirst(), FJClass.class);
+    expType = (FJClass) result.getFirst();
+    
+    /* empty |- cast.type <: expType or empty |- expType <: cast.type or fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
+    {
+      RuleFailedException previousFailure = null;
+      try {
+        /* empty |- cast.type <: expType */
+        FJClass _type = cast.getType();
+        subtypeInternal(emptyEnvironment(), _trace_, _type, expType);
+      } catch (Exception e) {
+        previousFailure = extractRuleFailedException(e);
+        /* empty |- expType <: cast.type or fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
+        {
+          try {
+            /* empty |- expType <: cast.type */
+            FJClass _type_1 = cast.getType();
+            subtypeInternal(emptyEnvironment(), _trace_, expType, _type_1);
+          } catch (Exception e_1) {
+            previousFailure = extractRuleFailedException(e_1);
+            /* fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
+            String _stringRep = this.stringRep(expType);
+            String _plus = ("Cannot cast from " + _stringRep);
+            String _plus_1 = (_plus + " to ");
+            String _stringRep_1 = this.stringRep(cast.getType());
+            String _plus_2 = (_plus_1 + _stringRep_1);
+            String error = _plus_2;
+            EObject source = cast;
+            throwForExplicitFail(error, new ErrorInformation(source, null));
+          }
+        }
+      }
+    }
+    return new Result<Boolean>(true);
   }
   
   public Result<Boolean> checkMethodBody(final FJMethod method) {
@@ -474,17 +589,17 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	_issue, _ex, new ErrorInformation(null, null));
   }
   
-  protected Result<Boolean> subtypesequenceInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
+  protected Result<Boolean> subtypesequenceInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements) {
     try {
-    	checkParamsNotNull(expressions, elements);
-    	return subtypesequenceDispatcher.invoke(_environment_, _trace_, expressions, elements);
+    	checkParamsNotNull(owner, expressions, elements);
+    	return subtypesequenceDispatcher.invoke(_environment_, _trace_, owner, expressions, elements);
     } catch (Exception _e_subtypesequence) {
     	sneakyThrowRuleFailedException(_e_subtypesequence);
     	return null;
     }
   }
   
-  protected void subtypesequenceThrowException(final String _error, final String _issue, final Exception _ex, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements, final ErrorInformation[] _errorInformations) throws RuleFailedException {
+  protected void subtypesequenceThrowException(final String _error, final String _issue, final Exception _ex, final FJExpression owner, final List<FJExpression> expressions, final List<? extends FJTypedElement> elements, final ErrorInformation[] _errorInformations) throws RuleFailedException {
     throwRuleFailedException(_error, _issue, _ex, _errorInformations);
   }
   
@@ -676,10 +791,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected Result<FJClass> applyRuleTNew(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJNew newExp) throws RuleFailedException {
-    List<FJField> fields = this.fieldsInternal(_trace_, newExp.getType());
-    /* G |- newExp.args << fields */
-    EList<FJExpression> _args = newExp.getArgs();
-    subtypesequenceInternal(G, _trace_, _args, fields);
+    
     return new Result<FJClass>(_applyRuleTNew_1(G, newExp));
   }
   
@@ -737,22 +849,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected Result<FJClass> applyRuleTSelection(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJMemberSelection selection) throws RuleFailedException {
-    /* G |- selection.receiver : var FJClass receiverType */
-    FJExpression _receiver = selection.getReceiver();
-    FJClass receiverType = null;
-    Result<FJClass> result = inferTypeInternal(G, _trace_, _receiver);
-    checkAssignableTo(result.getFirst(), FJClass.class);
-    receiverType = (FJClass) result.getFirst();
     
-    final FJMember message = selection.getMember();
-    boolean _matched = false;
-    if (message instanceof FJMethod) {
-      _matched=true;
-      /* G |- selection.args << message.params */
-      EList<FJExpression> _args = selection.getArgs();
-      EList<FJParameter> _params = ((FJMethod)message).getParams();
-      subtypesequenceInternal(G, _trace_, _args, _params);
-    }
     return new Result<FJClass>(_applyRuleTSelection_1(G, selection));
   }
   
@@ -781,43 +878,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected Result<FJClass> applyRuleTCast(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJCast cast) throws RuleFailedException {
-    /* G |- cast.expression : var FJClass expType */
-    FJExpression _expression = cast.getExpression();
-    FJClass expType = null;
-    Result<FJClass> result = inferTypeInternal(G, _trace_, _expression);
-    checkAssignableTo(result.getFirst(), FJClass.class);
-    expType = (FJClass) result.getFirst();
     
-    /* G |- cast.type <: expType or G |- expType <: cast.type or fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
-    {
-      RuleFailedException previousFailure = null;
-      try {
-        /* G |- cast.type <: expType */
-        FJClass _type = cast.getType();
-        subtypeInternal(G, _trace_, _type, expType);
-      } catch (Exception e) {
-        previousFailure = extractRuleFailedException(e);
-        /* G |- expType <: cast.type or fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
-        {
-          try {
-            /* G |- expType <: cast.type */
-            FJClass _type_1 = cast.getType();
-            subtypeInternal(G, _trace_, expType, _type_1);
-          } catch (Exception e_1) {
-            previousFailure = extractRuleFailedException(e_1);
-            /* fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
-            String _stringRep = this.stringRep(expType);
-            String _plus = ("Cannot cast from " + _stringRep);
-            String _plus_1 = (_plus + " to ");
-            String _stringRep_1 = this.stringRep(cast.getType());
-            String _plus_2 = (_plus_1 + _stringRep_1);
-            String error = _plus_2;
-            EObject source = cast;
-            throwForExplicitFail(error, new ErrorInformation(source, null));
-          }
-        }
-      }
-    }
     return new Result<FJClass>(_applyRuleTCast_1(G, cast));
   }
   
@@ -867,27 +928,27 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     return new Result<Boolean>(true);
   }
   
-  protected Result<Boolean> subtypesequenceImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final List<FJExpression> expressions, final List<FJTypedElement> typedElements) throws RuleFailedException {
+  protected Result<Boolean> subtypesequenceImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJExpression owner, final List<FJExpression> expressions, final List<FJTypedElement> typedElements) throws RuleFailedException {
     try {
     	final RuleApplicationTrace _subtrace_ = newTrace(_trace_);
-    	final Result<Boolean> _result_ = applyRuleSubtypeSequence(G, _subtrace_, expressions, typedElements);
+    	final Result<Boolean> _result_ = applyRuleSubtypeSequence(G, _subtrace_, owner, expressions, typedElements);
     	addToTrace(_trace_, new Provider<Object>() {
     		public Object get() {
-    			return ruleName("SubtypeSequence") + stringRepForEnv(G) + " |- " + stringRep(expressions) + " << " + stringRep(typedElements);
+    			return ruleName("SubtypeSequence") + stringRepForEnv(G) + " |- " + stringRep(owner) + " ~> " + stringRep(expressions) + " << " + stringRep(typedElements);
     		}
     	});
     	addAsSubtrace(_trace_, _subtrace_);
     	return _result_;
     } catch (Exception e_applyRuleSubtypeSequence) {
-    	subtypesequenceThrowException(ruleName("SubtypeSequence") + stringRepForEnv(G) + " |- " + stringRep(expressions) + " << " + stringRep(typedElements),
+    	subtypesequenceThrowException(ruleName("SubtypeSequence") + stringRepForEnv(G) + " |- " + stringRep(owner) + " ~> " + stringRep(expressions) + " << " + stringRep(typedElements),
     		SUBTYPESEQUENCE,
-    		e_applyRuleSubtypeSequence, expressions, typedElements, new ErrorInformation[] {});
+    		e_applyRuleSubtypeSequence, owner, expressions, typedElements, new ErrorInformation[] {new ErrorInformation(owner)});
     	return null;
     }
   }
   
-  protected Result<Boolean> applyRuleSubtypeSequence(final RuleEnvironment G, final RuleApplicationTrace _trace_, final List<FJExpression> expressions, final List<FJTypedElement> typedElements) throws RuleFailedException {
-    /* expressions.size == typedElements.size or fail error "expected " + typedElements.size + " arguments, but got " + expressions.size */
+  protected Result<Boolean> applyRuleSubtypeSequence(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJExpression owner, final List<FJExpression> expressions, final List<FJTypedElement> typedElements) throws RuleFailedException {
+    /* expressions.size == typedElements.size or fail error "expected " + typedElements.size + " arguments, but got " + expressions.size source owner */
     {
       RuleFailedException previousFailure = null;
       try {
@@ -900,14 +961,15 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
         }
       } catch (Exception e) {
         previousFailure = extractRuleFailedException(e);
-        /* fail error "expected " + typedElements.size + " arguments, but got " + expressions.size */
+        /* fail error "expected " + typedElements.size + " arguments, but got " + expressions.size source owner */
         int _size_2 = typedElements.size();
         String _plus = ("expected " + Integer.valueOf(_size_2));
         String _plus_1 = (_plus + " arguments, but got ");
         int _size_3 = expressions.size();
         String _plus_2 = (_plus_1 + Integer.valueOf(_size_3));
         String error = _plus_2;
-        throwForExplicitFail(error, new ErrorInformation(null, null));
+        EObject source = owner;
+        throwForExplicitFail(error, new ErrorInformation(source, null));
       }
     }
     final Iterator<FJTypedElement> typedElementsIterator = typedElements.iterator();
@@ -918,9 +980,25 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
       checkAssignableTo(result.getFirst(), FJClass.class);
       expType = (FJClass) result.getFirst();
       
-      /* G |- expType <: typedElementsIterator.next.type */
-      FJClass _type = typedElementsIterator.next().getType();
-      subtypeInternal(G, _trace_, expType, _type);
+      final FJClass expected = typedElementsIterator.next().getType();
+      /* G |- expType <: expected or fail error stringRep(expType) + " is not a subtype of " + stringRep(expected) source exp */
+      {
+        RuleFailedException previousFailure = null;
+        try {
+          /* G |- expType <: expected */
+          subtypeInternal(G, _trace_, expType, expected);
+        } catch (Exception e_1) {
+          previousFailure = extractRuleFailedException(e_1);
+          /* fail error stringRep(expType) + " is not a subtype of " + stringRep(expected) source exp */
+          String _stringRep = this.stringRep(expType);
+          String _plus_3 = (_stringRep + " is not a subtype of ");
+          String _stringRep_1 = this.stringRep(expected);
+          String _plus_4 = (_plus_3 + _stringRep_1);
+          String error_1 = _plus_4;
+          EObject source_1 = exp;
+          throwForExplicitFail(error_1, new ErrorInformation(source_1, null));
+        }
+      }
     }
     return new Result<Boolean>(true);
   }

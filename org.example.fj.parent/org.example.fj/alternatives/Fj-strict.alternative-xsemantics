@@ -1,25 +1,25 @@
 import java.util.ArrayList
 import java.util.List
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
-import org.example.fj.fj.FJAccessLevel
 import org.example.fj.fj.FJCast
 import org.example.fj.fj.FJClass
 import org.example.fj.fj.FJExpression
 import org.example.fj.fj.FJField
-import org.example.fj.fj.FJMember
 import org.example.fj.fj.FJMemberSelection
 import org.example.fj.fj.FJMethod
 import org.example.fj.fj.FJNew
 import org.example.fj.fj.FJParamRef
-import org.example.fj.fj.FJProgram
 import org.example.fj.fj.FJThis
 import org.example.fj.fj.FJTypedElement
 import org.example.fj.fj.FjPackage
 import org.example.fj.validation.AbstractFJValidator
+import org.example.fj.fj.FJProgram
 
-import static org.eclipse.xtext.EcoreUtil2.*
 import static org.example.fj.fj.FjPackage.Literals.*
+import static org.eclipse.xtext.EcoreUtil2.*
+import org.example.fj.fj.FJAccessLevel
+import org.example.fj.fj.FJMember
+import org.eclipse.emf.ecore.EObject
 
 system org.example.fj.typing.FJTypeSystem
 
@@ -38,9 +38,7 @@ judgments {
 		source expression
 	subtype |- FJClass left <: FJClass right
 		error left.name + " is not a subtype of " + right.name
-	subtypesequence |-
-		FJExpression owner ~>
-		List<FJExpression> expressions << List<? extends FJTypedElement> elements
+	subtypesequence |- List<FJExpression> expressions << List<? extends FJTypedElement> elements
 }
 
 auxiliary superclasses(FJClass cl) {
@@ -90,17 +88,44 @@ auxiliary isAccessible(FJMember member, EObject context) {
 axiom TThis
 	G |- FJThis _this : env(G, 'this', FJClass)
 
-axiom TNew
+rule TNew
 	G |- FJNew newExp : newExp.type
+from {
+	var fields = fields(newExp.type)
+	// we want the superclasses' fields first
+	G |- newExp.args << fields
+}
 
 axiom TParamRef 
 	G |- FJParamRef paramref : paramref.parameter.type
 
-axiom TSelection
+rule TSelection
 	G |- FJMemberSelection selection : selection.member.type
+from {
+	G |- selection.receiver : var FJClass receiverType
+	// check message if it's a method call
+	val message = selection.member
+	switch (message) {
+		FJMethod: { 
+			G |- selection.args << message.params
+		}
+	}
+}
 
-axiom TCast
+rule TCast
 	G |- FJCast cast : cast.type
+from {
+	G |- cast.expression : var FJClass expType
+	
+	G |- cast.type <: expType
+	or
+	G |- expType <: cast.type
+	or
+		fail
+		error "Cannot cast from " + stringRep(expType)
+			+ " to " + stringRep(cast.type)
+		source cast
+}
 
 // note that super as an expression cannot be typed
 
@@ -113,69 +138,22 @@ from {
 }
 
 rule SubtypeSequence
-	G |- FJExpression owner ~> List<FJExpression> expressions << List<FJTypedElement> typedElements
+	G |- List<FJExpression> expressions << List<FJTypedElement> typedElements
 from {
 	expressions.size == typedElements.size
 	or
 	fail
 		error "expected " + typedElements.size + " arguments, but got " +
 			expressions.size
-		source owner
 	
 	val typedElementsIterator = typedElements.iterator
 	for (exp : expressions) {
 		G |- exp : var FJClass expType
-
-		val expected = typedElementsIterator.next.type
-		G |- expType <: expected
-		or
-		fail
-			error stringRep(expType) + " is not a subtype of "
-				+ stringRep(expected)
-			source exp
+		G |- expType <: typedElementsIterator.next.type
 	}
 }
 
 // checkrules (for the generated validator)
-
-checkrule CheckNew
-	for FJNew newExp
-from {
-	var fields = fields(newExp.type)
-	// we want the superclasses' fields first
-	'this' <- getContainerOfType(newExp, FJClass) |- newExp ~> newExp.args << fields
-}
-
-checkrule CheckSelection
-	for FJMemberSelection selection
-from {
-	// check message if it's a method call
-	val member = selection.member
-	switch (member) {
-		FJMethod: { 
-			'this' <- member.eContainer |- selection ~> selection.args << member.params
-			or fail
-				error previousFailure.previous.message
-				source selection
-				feature FJ_MEMBER_SELECTION__MEMBER
-		}
-	}
-}
-
-checkrule CheckCast
-	for FJCast cast
-from {
-	'this' <- getContainerOfType(cast, FJClass) |- cast.expression : var FJClass expType
-	
-	empty |- cast.type <: expType
-	or
-	empty |- expType <: cast.type
-	or
-		fail
-		error "Cannot cast from " + stringRep(expType)
-			+ " to " + stringRep(cast.type)
-		source cast
-}
 
 checkrule CheckMethodBody for
 	FJMethod method
