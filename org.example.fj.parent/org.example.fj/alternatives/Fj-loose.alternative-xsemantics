@@ -1,0 +1,233 @@
+import java.util.ArrayList
+import java.util.List
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.EcoreUtil2
+import org.example.fj.fj.FJAccessLevel
+import org.example.fj.fj.FJCast
+import org.example.fj.fj.FJClass
+import org.example.fj.fj.FJExpression
+import org.example.fj.fj.FJField
+import org.example.fj.fj.FJMember
+import org.example.fj.fj.FJMemberSelection
+import org.example.fj.fj.FJMethod
+import org.example.fj.fj.FJNew
+import org.example.fj.fj.FJParamRef
+import org.example.fj.fj.FJProgram
+import org.example.fj.fj.FJThis
+import org.example.fj.fj.FJTypedElement
+import org.example.fj.fj.FjPackage
+import org.example.fj.validation.AbstractFJValidator
+
+import static org.eclipse.xtext.EcoreUtil2.*
+import static org.example.fj.fj.FjPackage.Literals.*
+
+system org.example.fj.typing.FJTypeSystem
+
+validatorExtends AbstractFJValidator
+
+auxiliary {
+	superclasses(FJClass cl) : List<FJClass>
+	fields(FJClass cl) : List<FJField>
+	methods(FJClass cl) : List<FJMethod>
+	isAccessible(FJMember member, EObject context) : Boolean
+}
+
+judgments {
+	inferType |- FJExpression expression : output FJClass
+		error "cannot type " + stringRep(expression)
+		source expression
+	subtype |- FJClass left <: FJClass right
+		error left.name + " is not a subtype of " + right.name
+	subtypesequence |-
+		FJExpression owner ~>
+		List<FJExpression> expressions << List<? extends FJTypedElement> elements
+}
+
+auxiliary superclasses(FJClass cl) {
+	getAll(cl,
+		FjPackage.eINSTANCE.FJClass_Superclass,
+		FjPackage.eINSTANCE.FJClass_Superclass,
+		typeof(FJClass)
+	)
+}
+
+auxiliary fields(FJClass clazz) {
+	var Iterable<FJField> fields = new ArrayList
+	
+	// inherited fields must come first
+	for (superclass : superclasses(clazz)) {
+		fields = 
+			(EcoreUtil2.typeSelect(superclass.members, typeof(FJField)) 
+				+ fields)
+	}
+	fields = fields + EcoreUtil2.typeSelect(clazz.members, typeof(FJField))
+	newArrayList(fields)
+}
+
+auxiliary methods(FJClass clazz) {
+	val methods = EcoreUtil2.typeSelect(clazz.members, typeof(FJMethod))
+	superclasses(clazz).forEach [ 
+		c | 
+		methods.addAll(EcoreUtil2.typeSelect(c.members, typeof(FJMethod)))
+	]
+	methods
+}
+
+auxiliary isAccessible(FJMember member, EObject context) {
+	val receiverClass = getContainerOfType(context, FJClass)
+	val memberClass = getContainerOfType(member, FJClass)
+	
+	return member.access == FJAccessLevel.PUBLIC
+		||
+		receiverClass === memberClass
+		||
+		{
+			empty |- receiverClass <: memberClass
+			member.access != FJAccessLevel.PRIVATE
+		}
+}
+
+axiom TThis
+	G |- FJThis _this : env(G, 'this', FJClass)
+
+axiom TNew
+	G |- FJNew newExp : newExp.type
+
+axiom TParamRef 
+	G |- FJParamRef paramref : paramref.parameter.type
+
+axiom TSelection
+	G |- FJMemberSelection selection : selection.member.type
+
+axiom TCast
+	G |- FJCast cast : cast.type
+
+// note that super as an expression cannot be typed
+
+rule ClassSubtyping
+	G |- FJClass left <: FJClass right
+from {
+	left == right
+	or
+	superclasses(left).contains(right)
+}
+
+rule SubtypeSequence
+	G |- FJExpression owner ~> List<FJExpression> expressions << List<FJTypedElement> typedElements
+from {
+	expressions.size == typedElements.size
+	or
+	fail
+		error "expected " + typedElements.size + " arguments, but got " +
+			expressions.size
+		source owner
+	
+	val typedElementsIterator = typedElements.iterator
+	for (exp : expressions) {
+		G |- exp : var FJClass expType
+
+		val expected = typedElementsIterator.next.type
+		G |- expType <: expected
+		or
+		fail
+			error stringRep(expType) + " is not a subtype of "
+				+ stringRep(expected)
+			source exp
+	}
+}
+
+// checkrules (for the generated validator)
+
+checkrule CheckNew
+	for FJNew newExp
+from {
+	var fields = fields(newExp.type)
+	// we want the superclasses' fields first
+	'this' <- getContainerOfType(newExp, FJClass) |- newExp ~> newExp.args << fields
+}
+
+checkrule CheckSelection
+	for FJMemberSelection selection
+from {
+	// check message if it's a method call
+	val member = selection.member
+	switch (member) {
+		FJMethod: { 
+			'this' <- member.eContainer |- selection ~> selection.args << member.params
+			or fail
+				error previousFailure.previous.message
+				source selection
+				feature FJ_MEMBER_SELECTION__MEMBER
+		}
+	}
+}
+
+checkrule CheckCast
+	for FJCast cast
+from {
+	'this' <- getContainerOfType(cast, FJClass) |- cast.expression : var FJClass expType
+	
+	empty |- cast.type <: expType
+	or
+	empty |- expType <: cast.type
+	or
+		fail
+		error "Cannot cast from " + stringRep(expType)
+			+ " to " + stringRep(cast.type)
+		source cast
+}
+
+checkrule CheckMethodBody for
+	FJMethod method
+from {
+	// pass an environment for "this"
+	'this' <- method.eContainer |- 
+		method.expression : var FJClass bodyType
+
+	empty |- bodyType <: method.type
+	or
+	fail
+		error "Type mismatch: cannot convert from " +
+			stringRep(bodyType) + " to " + stringRep(method.type)
+		source method.expression
+}
+
+checkrule CheckMemberSelection for
+	FJMemberSelection sel
+from {
+	val member = sel.member
+	
+	if (member instanceof FJField && sel.methodinvocation) {
+		fail
+			error "Method invocation on a field"
+			source sel
+			feature FJ_MEMBER_SELECTION__MEMBER
+	} else if (member instanceof FJMethod && !sel.methodinvocation) {
+		fail
+			error "Field selection on a method"
+			source sel
+			feature FJ_MEMBER_SELECTION__MEMBER
+	}
+}
+
+checkrule CheckAccessibility for
+	FJMemberSelection sel
+from {
+	val member = sel.member
+	
+	isAccessible(member, sel.receiver)
+	or fail
+		error "The " + member.access + " member "
+			+ member.name + " is not accessible here"
+		source sel
+		feature FJ_MEMBER_SELECTION__MEMBER
+}
+
+checkrule CheckMain for
+	FJProgram program
+from {
+	program.main === null // nothing to check
+	or
+	empty |- program.main : var FJClass mainType
+}
+
