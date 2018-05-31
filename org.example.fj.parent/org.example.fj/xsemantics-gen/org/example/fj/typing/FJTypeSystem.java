@@ -788,7 +788,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     checkAssignableTo(result.getFirst(), FJClass.class);
     expType = (FJClass) result.getFirst();
     
-    /* G |- cast.type <: expType or G |- expType <: cast.type */
+    /* G |- cast.type <: expType or G |- expType <: cast.type or fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
     {
       RuleFailedException previousFailure = null;
       try {
@@ -797,9 +797,25 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
         subtypeInternal(G, _trace_, _type, expType);
       } catch (Exception e) {
         previousFailure = extractRuleFailedException(e);
-        /* G |- expType <: cast.type */
-        FJClass _type_1 = cast.getType();
-        subtypeInternal(G, _trace_, expType, _type_1);
+        /* G |- expType <: cast.type or fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
+        {
+          try {
+            /* G |- expType <: cast.type */
+            FJClass _type_1 = cast.getType();
+            subtypeInternal(G, _trace_, expType, _type_1);
+          } catch (Exception e_1) {
+            previousFailure = extractRuleFailedException(e_1);
+            /* fail error "Cannot cast from " + stringRep(expType) + " to " + stringRep(cast.type) source cast */
+            String _stringRep = this.stringRep(expType);
+            String _plus = ("Cannot cast from " + _stringRep);
+            String _plus_1 = (_plus + " to ");
+            String _stringRep_1 = this.stringRep(cast.getType());
+            String _plus_2 = (_plus_1 + _stringRep_1);
+            String error = _plus_2;
+            EObject source = cast;
+            throwForExplicitFail(error, new ErrorInformation(source, null));
+          }
+        }
       }
     }
     return new Result<FJClass>(_applyRuleTCast_1(G, cast));

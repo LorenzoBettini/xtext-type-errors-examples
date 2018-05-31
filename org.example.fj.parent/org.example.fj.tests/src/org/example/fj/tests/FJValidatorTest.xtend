@@ -33,6 +33,20 @@ class FJValidatorTest {
 	}
 
 	@Test
+	def void testWrongCast() {
+		val result = '''
+			class A {}
+			class B {}
+			(A) new B()
+		'''.parse
+		result.assertError(
+			FJ_CAST,
+			null,
+			"Cannot cast from B to A"
+		)
+	}
+
+	@Test
 	def void testValidMethodBody() {
 		val result = '''
 			class A {}

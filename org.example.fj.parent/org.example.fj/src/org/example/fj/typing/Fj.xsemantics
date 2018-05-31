@@ -120,6 +120,11 @@ from {
 	G |- cast.type <: expType
 	or
 	G |- expType <: cast.type
+	or
+		fail
+		error "Cannot cast from " + stringRep(expType)
+			+ " to " + stringRep(cast.type)
+		source cast
 }
 
 // note that super as an expression cannot be typed
