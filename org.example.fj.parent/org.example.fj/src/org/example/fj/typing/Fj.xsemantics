@@ -26,10 +26,10 @@ system org.example.fj.typing.FJTypeSystem
 validatorExtends AbstractFJValidator
 
 auxiliary {
-	superclasses(FJClass cl) : List<FJClass>
-	fields(FJClass cl) : List<FJField>
-	methods(FJClass cl) : List<FJMethod>
-	isAccessible(FJMember member, EObject context) : Boolean
+	superclasses(FJClass cl) : List<FJClass> cached
+	fields(FJClass cl) : List<FJField> cached
+	methods(FJClass cl) : List<FJMethod> cached
+	isAccessible(FJMember member, EObject context) : Boolean cached
 }
 
 judgments {

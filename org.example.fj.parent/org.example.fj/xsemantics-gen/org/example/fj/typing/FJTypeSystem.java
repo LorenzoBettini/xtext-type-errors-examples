@@ -15,6 +15,7 @@ import org.eclipse.xsemantics.runtime.Result;
 import org.eclipse.xsemantics.runtime.RuleApplicationTrace;
 import org.eclipse.xsemantics.runtime.RuleEnvironment;
 import org.eclipse.xsemantics.runtime.RuleFailedException;
+import org.eclipse.xsemantics.runtime.XsemanticsProvider;
 import org.eclipse.xsemantics.runtime.XsemanticsRuntimeSystem;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.util.PolymorphicDispatcher;
@@ -496,13 +497,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected List<FJClass> superclassesInternal(final RuleApplicationTrace _trace_, final FJClass cl) {
-    try {
-    	checkParamsNotNull(cl);
-    	return superclassesDispatcher.invoke(_trace_, cl);
-    } catch (Exception _e_superclasses) {
-    	sneakyThrowRuleFailedException(_e_superclasses);
-    	return null;
-    }
+    return getFromCache("superclassesInternal", (RuleEnvironment)null, _trace_,
+    	new XsemanticsProvider<List<FJClass>>(null, _trace_) {
+    		public List<FJClass> doGet() {
+    			try {
+    				checkParamsNotNull(cl);
+    				return superclassesDispatcher.invoke(_trace_, cl);
+    			} catch (Exception _e_superclasses) {
+    				sneakyThrowRuleFailedException(_e_superclasses);
+    				return null;
+    			}
+    		}
+    	}, cl);
   }
   
   protected void superclassesThrowException(final String _error, final String _issue, final Exception _ex, final FJClass cl, final ErrorInformation[] _errorInformations) throws RuleFailedException {
@@ -510,13 +516,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected List<FJField> fieldsInternal(final RuleApplicationTrace _trace_, final FJClass cl) {
-    try {
-    	checkParamsNotNull(cl);
-    	return fieldsDispatcher.invoke(_trace_, cl);
-    } catch (Exception _e_fields) {
-    	sneakyThrowRuleFailedException(_e_fields);
-    	return null;
-    }
+    return getFromCache("fieldsInternal", (RuleEnvironment)null, _trace_,
+    	new XsemanticsProvider<List<FJField>>(null, _trace_) {
+    		public List<FJField> doGet() {
+    			try {
+    				checkParamsNotNull(cl);
+    				return fieldsDispatcher.invoke(_trace_, cl);
+    			} catch (Exception _e_fields) {
+    				sneakyThrowRuleFailedException(_e_fields);
+    				return null;
+    			}
+    		}
+    	}, cl);
   }
   
   protected void fieldsThrowException(final String _error, final String _issue, final Exception _ex, final FJClass cl, final ErrorInformation[] _errorInformations) throws RuleFailedException {
@@ -524,13 +535,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected List<FJMethod> methodsInternal(final RuleApplicationTrace _trace_, final FJClass cl) {
-    try {
-    	checkParamsNotNull(cl);
-    	return methodsDispatcher.invoke(_trace_, cl);
-    } catch (Exception _e_methods) {
-    	sneakyThrowRuleFailedException(_e_methods);
-    	return null;
-    }
+    return getFromCache("methodsInternal", (RuleEnvironment)null, _trace_,
+    	new XsemanticsProvider<List<FJMethod>>(null, _trace_) {
+    		public List<FJMethod> doGet() {
+    			try {
+    				checkParamsNotNull(cl);
+    				return methodsDispatcher.invoke(_trace_, cl);
+    			} catch (Exception _e_methods) {
+    				sneakyThrowRuleFailedException(_e_methods);
+    				return null;
+    			}
+    		}
+    	}, cl);
   }
   
   protected void methodsThrowException(final String _error, final String _issue, final Exception _ex, final FJClass cl, final ErrorInformation[] _errorInformations) throws RuleFailedException {
@@ -538,12 +554,17 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected Boolean isAccessibleInternal(final RuleApplicationTrace _trace_, final FJMember member, final EObject context) {
-    try {
-    	checkParamsNotNull(member, context);
-    	return isAccessibleDispatcher.invoke(_trace_, member, context);
-    } catch (Exception _e_isAccessible) {
-    	return false;
-    }
+    return getFromCache("isAccessibleInternal", (RuleEnvironment)null, _trace_,
+    	new XsemanticsProvider<Boolean>(null, _trace_) {
+    		public Boolean doGet() {
+    			try {
+    				checkParamsNotNull(member, context);
+    				return isAccessibleDispatcher.invoke(_trace_, member, context);
+    			} catch (Exception _e_isAccessible) {
+    				return false;
+    			}
+    		}
+    	}, member, context);
   }
   
   protected void isAccessibleThrowException(final String _error, final String _issue, final Exception _ex, final FJMember member, final EObject context, final ErrorInformation[] _errorInformations) throws RuleFailedException {
