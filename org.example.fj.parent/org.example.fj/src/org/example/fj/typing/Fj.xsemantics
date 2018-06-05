@@ -89,6 +89,8 @@ auxiliary isAccessible(FJMember member, EObject context) {
 
 axiom TThis
 	G |- FJThis _this : env(G, 'this', FJClass)
+	error "'this' cannot be used in the current context"
+	source _this
 
 axiom TNew
 	G |- FJNew newExp : newExp.type

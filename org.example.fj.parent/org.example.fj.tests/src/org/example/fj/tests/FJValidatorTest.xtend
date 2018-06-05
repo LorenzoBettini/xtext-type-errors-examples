@@ -12,6 +12,7 @@ import org.example.fj.fj.FJProgram
 import org.junit.Test
 import org.junit.runner.RunWith
 import static org.example.fj.fj.FjPackage.Literals.*
+import org.example.fj.typing.FJTypeSystem
 
 @RunWith(XtextRunner)
 @InjectWith(FJInjectorProvider)
@@ -145,6 +146,18 @@ class FJValidatorTest {
 			FJ_MEMBER_SELECTION,
 			null,
 			"The protected member protF is not accessible here"
+		)
+	}
+
+	@Test
+	def void testInvalidThis() {
+		val result = '''
+			this
+		'''.parse
+		result.assertError(
+			FJ_THIS,
+			FJTypeSystem.TTHIS,
+			"'this' cannot be used in the current context"
 		)
 	}
 }

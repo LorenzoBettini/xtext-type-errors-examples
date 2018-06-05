@@ -754,9 +754,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
     	addAsSubtrace(_trace_, _subtrace_);
     	return _result_;
     } catch (Exception e_applyRuleTThis) {
-    	inferTypeThrowException(ruleName("TThis") + stringRepForEnv(G) + " |- " + stringRep(_this) + " : " + "FJClass",
-    		TTHIS,
-    		e_applyRuleTThis, _this, new ErrorInformation[] {new ErrorInformation(_this)});
+    	tThisThrowException(e_applyRuleTThis, _this);
     	return null;
     }
   }
@@ -769,6 +767,13 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   private FJClass _applyRuleTThis_1(final RuleEnvironment G, final FJThis _this) throws RuleFailedException {
     FJClass _env = this.<FJClass>env(G, "this", FJClass.class);
     return _env;
+  }
+  
+  private void tThisThrowException(final Exception e_applyRuleTThis, final FJThis _this) throws RuleFailedException {
+    String error = "\'this\' cannot be used in the current context";
+    EObject source = _this;
+    throwRuleFailedException(error,
+    	TTHIS, e_applyRuleTThis, new ErrorInformation(source, null));
   }
   
   protected Result<FJClass> inferTypeImpl(final RuleEnvironment G, final RuleApplicationTrace _trace_, final FJNew newExp) throws RuleFailedException {
