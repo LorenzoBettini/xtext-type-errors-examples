@@ -49,7 +49,6 @@ FJExpression:
 
 FJTerminalExpression returns FJExpression:
    FJThis |
-   FJSuper |
    FJParamRef |
    FJNew |
    =>FJCast |
