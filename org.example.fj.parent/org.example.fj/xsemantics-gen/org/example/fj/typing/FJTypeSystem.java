@@ -261,9 +261,7 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   
   protected Result<Boolean> checkSelectionInternal(final RuleApplicationTrace _trace_, final FJMemberSelection selection) throws RuleFailedException {
     final FJMember member = selection.getMember();
-    boolean _matched = false;
-    if (member instanceof FJMethod) {
-      _matched=true;
+    if ((member instanceof FJMethod)) {
       /* 'this' <- member.eContainer |- selection ~> selection.args << member.params or fail error previousFailure.previous.message source selection feature FJ_MEMBER_SELECTION__MEMBER */
       {
         RuleFailedException previousFailure = null;

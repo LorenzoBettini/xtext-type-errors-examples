@@ -153,14 +153,12 @@ checkrule CheckSelection
 from {
 	// check message if it's a method call
 	val member = selection.member
-	switch (member) {
-		FJMethod: { 
-			'this' <- member.eContainer |- selection ~> selection.args << member.params
-			or fail
-				error previousFailure.previous.message
-				source selection
-				feature FJ_MEMBER_SELECTION__MEMBER
-		}
+	if (member instanceof FJMethod) {
+		'this' <- member.eContainer |- selection ~> selection.args << member.params
+		or fail
+			error previousFailure.previous.message
+			source selection
+			feature FJ_MEMBER_SELECTION__MEMBER
 	}
 }
 
