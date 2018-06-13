@@ -46,7 +46,7 @@ class ExpressionsValidator extends AbstractExpressionsValidator {
 		
 		if (expectedType !== null &&
 				actualType !== null &&
-				!actualType.isAssignableTo(expectedType)) {
+				!actualType.isConformantTo(expectedType)) {
 			error("expected " +
 					expectedType + ", but was " +
 					actualType,

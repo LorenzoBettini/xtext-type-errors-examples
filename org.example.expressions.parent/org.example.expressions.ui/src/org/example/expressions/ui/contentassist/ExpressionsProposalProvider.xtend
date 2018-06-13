@@ -27,7 +27,7 @@ class ExpressionsProposalProvider extends AbstractExpressionsProposalProvider {
 			elem.variablesDefinedBefore
 				.filter[
 					variable |
-					variable.expression.inferredType.isAssignableTo(elemType)
+					variable.expression.inferredType.isConformantTo(elemType)
 				]
 				.forEach[
 					variable |

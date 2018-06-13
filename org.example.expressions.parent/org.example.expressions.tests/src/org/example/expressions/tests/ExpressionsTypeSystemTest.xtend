@@ -81,22 +81,22 @@ class ExpressionsTypeSystemTest {
 		(ExpressionsTypeSystem.INT_TYPE).isBoolType.assertFalse
 	}
 
-	@Test def void testEverythingIsAssignableToString() {
-		INT_TYPE.isAssignableTo(STRING_TYPE).assertTrue
-		BOOL_TYPE.isAssignableTo(STRING_TYPE).assertTrue
-		STRING_TYPE.isAssignableTo(STRING_TYPE).assertTrue
+	@Test def void testEverythingIsConformantToString() {
+		INT_TYPE.isConformantTo(STRING_TYPE).assertTrue
+		BOOL_TYPE.isConformantTo(STRING_TYPE).assertTrue
+		STRING_TYPE.isConformantTo(STRING_TYPE).assertTrue
 	}
 
-	@Test def void testOnlyIntIsAssignableToInt() {
-		INT_TYPE.isAssignableTo(INT_TYPE).assertTrue
-		BOOL_TYPE.isAssignableTo(INT_TYPE).assertFalse
-		STRING_TYPE.isAssignableTo(INT_TYPE).assertFalse
+	@Test def void testOnlyIntIsConformantToInt() {
+		INT_TYPE.isConformantTo(INT_TYPE).assertTrue
+		BOOL_TYPE.isConformantTo(INT_TYPE).assertFalse
+		STRING_TYPE.isConformantTo(INT_TYPE).assertFalse
 	}
 
-	@Test def void testOnlyBooleanIsAssignableToBoolean() {
-		INT_TYPE.isAssignableTo(BOOL_TYPE).assertFalse
-		BOOL_TYPE.isAssignableTo(BOOL_TYPE).assertTrue
-		STRING_TYPE.isAssignableTo(BOOL_TYPE).assertFalse
+	@Test def void testOnlyBooleanIsConformantToBoolean() {
+		INT_TYPE.isConformantTo(BOOL_TYPE).assertFalse
+		BOOL_TYPE.isConformantTo(BOOL_TYPE).assertTrue
+		STRING_TYPE.isConformantTo(BOOL_TYPE).assertFalse
 	}
 
 	@Test def void mulExpectsInt() { 
