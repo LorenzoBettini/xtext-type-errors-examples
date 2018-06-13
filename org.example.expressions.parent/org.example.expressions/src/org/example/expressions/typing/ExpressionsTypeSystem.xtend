@@ -98,6 +98,8 @@ class ExpressionsTypeSystem {
 				val rightType = container.right?.inferredType;
 				if (!leftType.isStringType && !rightType.isStringType) {
 					INT_TYPE
+				} else {
+					STRING_TYPE
 				}
 			}
 		}

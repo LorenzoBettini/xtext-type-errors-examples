@@ -127,9 +127,9 @@ class ExpressionsTypeSystemTest {
 		"true + false".assertExpectedType(INT_TYPE)
 	}
 
-	@Test def void plusWithStringsHasNoExpectation() { 
-		'"a string" + false'.assertExpectedType(null)
-		'false + "a string"'.assertExpectedType(null)
+	@Test def void plusWithStringsHasStringExpectation() { 
+		'"a string" + false'.assertExpectedType(STRING_TYPE)
+		'false + "a string"'.assertExpectedType(STRING_TYPE)
 	}
 
 	@Test def void noExpectation() { 
