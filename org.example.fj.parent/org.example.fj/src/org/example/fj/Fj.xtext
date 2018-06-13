@@ -56,7 +56,6 @@ FJTerminalExpression returns FJExpression:
 ;
 
 FJThis: {FJThis} 'this';
-FJSuper: {FJSuper} 'super';
 FJParamRef: parameter=[FJParameter];
 FJNew: 'new' type=[FJClass] '(' (args+=FJExpression (',' args+=FJExpression)*)? ')';
 FJCast: '(' type=[FJClass] ')' expression=FJExpression;
