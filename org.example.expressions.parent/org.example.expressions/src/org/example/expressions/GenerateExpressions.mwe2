@@ -2,6 +2,7 @@ module org.example.expressions.GenerateExpressions
 
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
+import org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment
 
 var rootPath = ".."
 
@@ -38,6 +39,10 @@ Workflow {
 			}
 			validator = {
 				// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
+			}
+			fragment = CodeMiningFragment {
+				generateStub = true
+				generateXtendStub = true
 			}
 		}
 	}
