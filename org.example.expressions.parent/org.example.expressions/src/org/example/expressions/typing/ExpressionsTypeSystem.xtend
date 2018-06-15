@@ -42,15 +42,8 @@ class ExpressionsTypeSystem {
 		switch (e) {
 			// trivial cases
 			StringConstant: STRING_TYPE
-			IntConstant: INT_TYPE
-			BoolConstant: BOOL_TYPE
-			Not: BOOL_TYPE
-			MulOrDiv: INT_TYPE
-			Minus: INT_TYPE
-			Comparison: BOOL_TYPE
-			Equality: BOOL_TYPE
-			And: BOOL_TYPE
-			Or: BOOL_TYPE
+			IntConstant | MulOrDiv | Minus: INT_TYPE
+			BoolConstant | Not | Comparison | Equality | And | Or: BOOL_TYPE
 			// recursive case
 			Plus: {
 				val leftType = e.left.inferredType
@@ -88,11 +81,8 @@ class ExpressionsTypeSystem {
 	def ExpressionsType expectedType(Expression exp) {
 		val container = exp.eContainer
 		switch (container) {
-			Not: BOOL_TYPE
-			MulOrDiv: INT_TYPE
-			Minus: INT_TYPE
-			And: BOOL_TYPE
-			Or: BOOL_TYPE
+			MulOrDiv | Minus: INT_TYPE
+			Not | And | Or: BOOL_TYPE
 			Plus: {
 				val leftType = container.left.inferredType;
 				val rightType = container.right?.inferredType;
