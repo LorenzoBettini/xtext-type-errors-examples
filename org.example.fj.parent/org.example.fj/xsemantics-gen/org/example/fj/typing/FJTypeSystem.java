@@ -153,11 +153,16 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   public Result<FJClass> inferType(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression expression) {
-    try {
-    	return inferTypeInternal(_environment_, _trace_, expression);
-    } catch (Exception _e_inferType) {
-    	return resultForFailure(_e_inferType);
-    }
+    return getFromCache("inferType", _environment_, _trace_,
+    	new XsemanticsProvider<Result<FJClass>>(_environment_, _trace_) {
+    		public Result<FJClass> doGet() {
+    			try {
+    				return inferTypeInternal(_environment_, _trace_, expression);
+    			} catch (Exception _e_inferType) {
+    				return resultForFailure(_e_inferType);
+    			}
+    		}
+    	}, expression);
   }
   
   public Result<Boolean> subtype(final FJClass left, final FJClass right) {
@@ -169,11 +174,16 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   public Result<Boolean> subtype(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJClass left, final FJClass right) {
-    try {
-    	return subtypeInternal(_environment_, _trace_, left, right);
-    } catch (Exception _e_subtype) {
-    	return resultForFailure(_e_subtype);
-    }
+    return getFromCache("subtype", _environment_, _trace_,
+    	new XsemanticsProvider<Result<Boolean>>(_environment_, _trace_) {
+    		public Result<Boolean> doGet() {
+    			try {
+    				return subtypeInternal(_environment_, _trace_, left, right);
+    			} catch (Exception _e_subtype) {
+    				return resultForFailure(_e_subtype);
+    			}
+    		}
+    	}, left, right);
   }
   
   public Boolean subtypeSucceeded(final FJClass left, final FJClass right) {
@@ -570,13 +580,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected Result<FJClass> inferTypeInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJExpression expression) {
-    try {
-    	checkParamsNotNull(expression);
-    	return inferTypeDispatcher.invoke(_environment_, _trace_, expression);
-    } catch (Exception _e_inferType) {
-    	sneakyThrowRuleFailedException(_e_inferType);
-    	return null;
-    }
+    return getFromCache("inferTypeInternal", _environment_, _trace_,
+    	new XsemanticsProvider<Result<FJClass>>(_environment_, _trace_) {
+    		public Result<FJClass> doGet() {
+    			try {
+    				checkParamsNotNull(expression);
+    				return inferTypeDispatcher.invoke(_environment_, _trace_, expression);
+    			} catch (Exception _e_inferType) {
+    				sneakyThrowRuleFailedException(_e_inferType);
+    				return null;
+    			}
+    		}
+    	}, expression);
   }
   
   protected void inferTypeThrowException(final String _error, final String _issue, final Exception _ex, final FJExpression expression, final ErrorInformation[] _errorInformations) throws RuleFailedException {
@@ -589,13 +604,18 @@ public class FJTypeSystem extends XsemanticsRuntimeSystem {
   }
   
   protected Result<Boolean> subtypeInternal(final RuleEnvironment _environment_, final RuleApplicationTrace _trace_, final FJClass left, final FJClass right) {
-    try {
-    	checkParamsNotNull(left, right);
-    	return subtypeDispatcher.invoke(_environment_, _trace_, left, right);
-    } catch (Exception _e_subtype) {
-    	sneakyThrowRuleFailedException(_e_subtype);
-    	return null;
-    }
+    return getFromCache("subtypeInternal", _environment_, _trace_,
+    	new XsemanticsProvider<Result<Boolean>>(_environment_, _trace_) {
+    		public Result<Boolean> doGet() {
+    			try {
+    				checkParamsNotNull(left, right);
+    				return subtypeDispatcher.invoke(_environment_, _trace_, left, right);
+    			} catch (Exception _e_subtype) {
+    				sneakyThrowRuleFailedException(_e_subtype);
+    				return null;
+    			}
+    		}
+    	}, left, right);
   }
   
   protected void subtypeThrowException(final String _error, final String _issue, final Exception _ex, final FJClass left, final FJClass right, final ErrorInformation[] _errorInformations) throws RuleFailedException {

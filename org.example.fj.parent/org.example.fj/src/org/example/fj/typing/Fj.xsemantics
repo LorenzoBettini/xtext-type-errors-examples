@@ -34,9 +34,11 @@ auxiliary {
 
 judgments {
 	inferType |- FJExpression expression : output FJClass
+		cached
 		error "cannot type " + stringRep(expression)
 		source expression
 	subtype |- FJClass left <: FJClass right
+		cached
 		error left.name + " is not a subtype of " + right.name
 	subtypesequence |-
 		FJExpression owner ~>
