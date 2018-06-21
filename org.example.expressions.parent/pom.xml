@@ -20,6 +20,7 @@
 		<tycho.testArgLine></tycho.testArgLine>
 	</properties>
 	<modules>
+		<module>org.example.expressions.vscode.generator</module>
 		<module>org.example.expressions</module>
 		<module>org.example.expressions.ide</module>
 		<module>org.example.expressions.ui</module>
