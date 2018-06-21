@@ -22,6 +22,9 @@ Workflow {
 				eclipsePluginTest = {
 					enabled = true
 				}
+				web = {
+					enabled = true
+				}
 				createEclipseMetaData = true
 			}
 			code = {
