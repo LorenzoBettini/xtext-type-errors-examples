@@ -3,19 +3,19 @@
  */
 package org.example.expressions.ui.codemining
 
+import com.google.inject.Inject
 import org.eclipse.jface.text.BadLocationException
 import org.eclipse.jface.text.IDocument
 import org.eclipse.jface.text.codemining.ICodeMining
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.codemining.AbstractXtextCodeMiningProvider
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.util.IAcceptor
-import org.eclipse.xtext.EcoreUtil2
 import org.example.expressions.expressions.Variable
-import com.google.inject.Inject
-import org.example.expressions.typing.ExpressionsTypeSystem
 import org.example.expressions.services.ExpressionsGrammarAccess
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.example.expressions.typing.ExpressionsTypeSystem
 
 class ExpressionsCodeMiningProvider extends AbstractXtextCodeMiningProvider {
 
@@ -37,9 +37,10 @@ class ExpressionsCodeMiningProvider extends AbstractXtextCodeMiningProvider {
 				val node = NodeModelUtils.findActualNodeFor(variable);
 				val nameNode = node.asTreeIterable.findFirst[grammarElement == nameElement]
 				if (nameNode !== null) {
-					// create line content code mining for inline annotation before grammarElement 'var'
+					// create line content code mining for inline annotation after the identifier
 					val annotationText = " : " + type
-					acceptor.accept(createNewLineContentCodeMining(nameNode.getTotalOffset() + 1, annotationText));
+					val beforeChar = nameNode.totalOffset + nameNode.length
+					acceptor.accept(createNewLineContentCodeMining(beforeChar, annotationText));
 				}
 			}
 		}
