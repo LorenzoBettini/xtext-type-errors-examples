@@ -10,15 +10,12 @@ node {
    stage('Build') {
       wrap([$class: 'Xvfb', autoDisplayName: true, debug: false]) {
         // Run the maven build
-        // returnStatus: true here will ensure the build stays yellow
-        // when test cases are failing
-        sh (script:
-          "'${mvnHome}/bin/mvn' -fae clean verify",
-          returnStatus: true
-        )
+        // don't make the build fail in case of test failures...
+        sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore=true -fae clean verify"
       }
    }
    stage('Results') {
+      // ... JUnit archiver will set the build as UNSTABLE in case of test failures
       junit '**/target/surefire-reports/TEST-*.xml'
       archive '**/target/repository/'
    }
