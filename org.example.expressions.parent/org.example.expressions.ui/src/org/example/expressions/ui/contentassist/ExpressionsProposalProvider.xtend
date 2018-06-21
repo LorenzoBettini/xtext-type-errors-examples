@@ -8,27 +8,21 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
-import org.example.expressions.ExpressionsModelUtil
 import org.example.expressions.expressions.Expression
-import org.example.expressions.typing.ExpressionsTypeSystem
+import org.example.expressions.ide.contentassist.ExpressionsContentProposalHelper
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
  * on how to customize the content assistant.
  */
 class ExpressionsProposalProvider extends AbstractExpressionsProposalProvider {
-	@Inject extension ExpressionsModelUtil
-	@Inject extension ExpressionsTypeSystem
+	@Inject extension ExpressionsContentProposalHelper
 
 	override completeAtomic_Variable(EObject elem, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
 		if (elem instanceof Expression) {
-			val elemType = elem.inferredType
-			elem.variablesDefinedBefore
-				.filter[
-					variable |
-					variable.expression.inferredType.isConformantTo(elemType)
-				]
+			elem
+				.validVariableReferences
 				.forEach[
 					variable |
 					acceptor.accept(
