@@ -23,6 +23,7 @@
 		<module>org.example.expressions</module>
 		<module>org.example.expressions.ide</module>
 		<module>org.example.expressions.ui</module>
+		<module>org.example.expressions.web</module>
 		<module>org.example.expressions.target</module>
 		<module>org.example.expressions.feature</module>
 		<module>org.example.expressions.repository</module>
