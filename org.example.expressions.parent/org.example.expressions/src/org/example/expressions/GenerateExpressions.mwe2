@@ -47,6 +47,12 @@ Workflow {
 				generateStub = true
 				generateXtendStub = true
 			}
+			fragment = com.itemis.xtext.generator.vscode.VSCodeExtensionFragment {
+				publisher = "LorenzoBettini" // this property is mandatory
+				versions = {
+					xtext = "2.14.0"
+				}
+			}
 		}
 	}
 }

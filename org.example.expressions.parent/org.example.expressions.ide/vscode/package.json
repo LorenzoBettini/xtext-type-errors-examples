@@ -1,0 +1,37 @@
+{
+	"name": "expressions",
+	"displayName": "Expressions",
+	"description": "Expressions Language",
+	"version": "0.1.0",
+	"publisher": "LorenzoBettini",
+	"engines": {
+		"vscode": "^1.2.0"
+	},
+	"categories": [
+		"Languages"
+	],
+	"activationEvents": [
+		"onLanguage:expressions"
+	],
+	"main": "src/extension",
+	"contributes": {
+		"languages": [{
+			"id": "expressions",
+			"aliases": ["expressions"],
+			"extensions": [".expressions"],
+			"configuration": "./expressions.configuration.json"
+		}],
+		"grammars": [{
+			"language": "expressions",
+			"scopeName": "text.expressions",
+			"path": "./syntaxes/expressions.tmLanguage"
+		}]
+	},
+	"devDependencies": {
+		"typescript": "^1.8.10",
+		"vscode": "^0.11.13"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^2.3.0"
+	}
+}
