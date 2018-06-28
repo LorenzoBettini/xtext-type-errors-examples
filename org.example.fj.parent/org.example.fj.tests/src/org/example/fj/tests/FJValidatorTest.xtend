@@ -13,6 +13,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import static org.example.fj.fj.FjPackage.Literals.*
 import org.example.fj.typing.FJTypeSystem
+import org.eclipse.emf.ecore.EObject
+
+import static extension org.junit.Assert.*
 
 @RunWith(XtextRunner)
 @InjectWith(FJInjectorProvider)
@@ -159,5 +162,47 @@ class FJValidatorTest {
 			FJTypeSystem.TTHIS,
 			"'this' cannot be used in the current context"
 		)
+	}
+
+	@Test
+	def void testNoDuplicateElements() {
+		'''
+		class A {
+			private A a;
+		}
+		class B {
+			private A a;
+		}
+		'''.parse.assertNoErrors
+	}
+
+	@Test
+	def void testDuplicateClasses() {
+		'''
+		class B {}
+		class A {
+			private A a;
+		}
+		class A {
+			private B b;
+		}
+		'''.parse.assertErrorMessages("Duplicate FJClass 'A',Duplicate FJClass 'A'")
+	}
+
+	@Test
+	def void testDuplicateMembers() {
+		'''
+		class B {}
+		class A {
+			private A a;
+			private B a;
+			private A b;
+		}
+		'''.parse.assertErrorMessages("Duplicate FJTypedElement 'a' in FJClass 'A',Duplicate FJTypedElement 'a' in FJClass 'A'")
+	}
+
+	def private assertErrorMessages(EObject model, CharSequence expected) {
+		val messages = model.validate.map[message].join(",")
+		expected.assertEquals(messages)
 	}
 }

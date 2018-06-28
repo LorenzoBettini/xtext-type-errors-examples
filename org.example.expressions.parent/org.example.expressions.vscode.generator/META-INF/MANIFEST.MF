@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.example.expressions.vscode.generator
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: org.example.expressions.vscode.generator;singleton:=true
+Bundle-ActivationPolicy: lazy
+Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.example.expressions.ui
+Require-Bundle: org.eclipse.emf.mwe2.runtime;bundle-version="2.9.1",
+ org.eclipse.xtend.lib,
+ org.eclipse.xtext.xtext.generator,
+ org.eclipse.xtext
+Export-Package: com.itemis.xtext.generator.vscode

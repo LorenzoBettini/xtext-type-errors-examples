@@ -2,6 +2,7 @@ module org.example.expressions.GenerateExpressions
 
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
+import org.eclipse.xtext.xtext.generator.ui.codemining.CodeMiningFragment
 
 var rootPath = ".."
 
@@ -21,6 +22,9 @@ Workflow {
 				eclipsePluginTest = {
 					enabled = true
 				}
+				web = {
+					enabled = true
+				}
 				createEclipseMetaData = true
 			}
 			code = {
@@ -37,7 +41,17 @@ Workflow {
 				generateStub = false
 			}
 			validator = {
-				// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
+				composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
+			}
+			fragment = CodeMiningFragment {
+				generateStub = true
+				generateXtendStub = true
+			}
+			fragment = com.itemis.xtext.generator.vscode.VSCodeExtensionFragment {
+				publisher = "LorenzoBettini" // this property is mandatory
+				versions = {
+					xtext = "2.14.0"
+				}
 			}
 		}
 	}

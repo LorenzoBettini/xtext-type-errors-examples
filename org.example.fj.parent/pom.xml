@@ -7,11 +7,17 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>1.0.0</tycho-version>
-		<xtextVersion>2.13.0</xtextVersion>
+		<xtextVersion>2.14.0</xtextVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<!-- Tycho settings -->
+		<tycho-version>1.1.0</tycho-version>
+		<!-- Define overridable properties for tycho-surefire-plugin -->
+		<platformSystemProperties></platformSystemProperties>
+		<moduleProperties></moduleProperties>
+		<systemProperties></systemProperties>
+		<tycho.testArgLine></tycho.testArgLine>
 	</properties>
 	<modules>
 		<module>org.example.fj</module>
@@ -136,10 +142,6 @@
 								<includes>
 									<include>**/*</include>
 								</includes>
-								<directory>${basedir}/xtend-gen</directory>
-								<includes>
-									<include>**/*</include>
-								</includes>
 							</fileset>
 						</filesets>
 					</configuration>
@@ -251,6 +253,21 @@
 						<useProjectSettings>false</useProjectSettings>
 					</configuration>
 				</plugin>
+				<!-- to skip running (and compiling) tests use commandline flag: -Dmaven.test.skip
+					To skip tests, but still compile them, use: -DskipTests
+					To allow all tests in a pom to pass/fail, use commandline flag: -fae (fail
+					at end) -->
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
+						<argLine>${tycho.testArgLine} ${platformSystemProperties} ${systemProperties} ${moduleProperties}</argLine>
+						<failIfNoTests>false</failIfNoTests>
+						<useUIHarness>false</useUIHarness>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -280,6 +297,29 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+	<profiles>
+		<profile>
+			<id>macos</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
+				<platformSystemProperties>-XstartOnFirstThread</platformSystemProperties>
+			</properties>
+		</profile>
+		<profile>
+			<id>jdk9-or-newer</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
+			<properties>
+				<moduleProperties>--add-modules=ALL-SYSTEM</moduleProperties>
+			</properties>
+		</profile>
+	</profiles>
 
 	<dependencies>
 	</dependencies>

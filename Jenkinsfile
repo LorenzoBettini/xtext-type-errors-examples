@@ -13,6 +13,6 @@ node {
    stage('Results') {
       // ... JUnit archiver will set the build as UNSTABLE in case of test failures
       junit '**/target/surefire-reports/TEST-*.xml'
-      archive '**/target/repository/'
+      archiveArtifacts '**/target/repository/'
    }
 }

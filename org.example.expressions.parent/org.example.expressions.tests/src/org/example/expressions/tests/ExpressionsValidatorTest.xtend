@@ -96,6 +96,24 @@ class ExpressionsValidatorTest {
 		"false + true".assertType(BOOL_TYPE, INT_TYPE)
 	}
 
+	@Test
+	def void testNoDuplicateVars() {
+		'''
+		var i = 0
+		var j = 0
+		'''.parse.assertNoErrors
+	}
+
+	@Test
+	def void testDuplicateVars() {
+		val prog = '''
+		var i = 0
+		var i = 0
+		'''.parse
+		val messages = prog.validate.map[message].join(",")
+		"Duplicate AbstractElement 'i',Duplicate AbstractElement 'i'".assertEquals(messages)
+	}
+
 	def void assertType(CharSequence input, 
 			ExpressionsType expectedWrongType,
 			ExpressionsType expectedActualType) {
