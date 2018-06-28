@@ -1,17 +1,13 @@
 node {
    def mvnHome
-   stage('Preparation') { // for display purposes
+   stage('Checkout') { // for display purposes
       checkout scm
-      // Get the Maven tool.
-      // ** NOTE: This 'M3' Maven tool must be configured
-      // **       in the global configuration.           
-      mvnHome = tool 'M3'
    }
    stage('Build') {
       wrap([$class: 'Xvfb', autoDisplayName: true, debug: false]) {
         // Run the maven build
         // don't make the build fail in case of test failures...
-        sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore=true -fae clean verify"
+        sh "./mvnw -Dmaven.test.failure.ignore=true -fae clean verify"
       }
    }
    stage('Results') {
