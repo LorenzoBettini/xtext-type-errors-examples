@@ -10,7 +10,7 @@ matrix:
     # only on PR
     - os: osx
       osx_image: xcode8
-    #  if: type IN (pull_request)
+      if: type IN (pull_request)
 
 cache:
   directories:
