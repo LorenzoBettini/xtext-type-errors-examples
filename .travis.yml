@@ -1,0 +1,31 @@
+language: java
+
+matrix:
+  fast_finish: true
+  include:
+    # always build this environment
+    - os: linux
+      jdk: oraclejdk8
+      env: DISPLAY=:99.0 ADDITIONAL=""
+    # only on PR
+    - os: osx
+      osx_image: xcode8
+      if: type IN (pull_request)
+
+cache:
+  directories:
+    - '$HOME/.m2'
+
+install: true
+
+before_install:
+# - echo "MAVEN_OPTS='-Xmx768m -Xms256m -Xss1m'" > ~/.mavenrc
+ - if [ "$TRAVIS_OS_NAME" == "osx" ]; then export JAVA_HOME=$(/usr/libexec/java_home); fi
+ - echo $JAVA_HOME
+
+before_script:
+ - sh -e ./before_script.sh
+
+script:
+ - export
+ - ./mvnw clean verify $ADDITIONAL
